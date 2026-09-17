@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Create Shipment - Restructured</title>
+<style>
+  :root {
+    --bg-page: #F0F4F8;
+    --bg-surface: #FFFFFF;
+    --border-color: #D9E2EC;
+    --border-focus: #0284C7;
+    --text-main: #0F172A;
+    --text-muted: #64748B;
+    --primary: #0284C7;
+    --primary-hover: #0369A1;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg-page);
+    color: var(--text-main);
+    margin: 0;
+    padding: 24px;
+  }
+
+  .form-shell {
+    max-width: 1360px;
+    margin: 0 auto;
+  }
+
+  /* Header & Action Bar */
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  .page-header h1 { font-size: 22px; font-weight: 700; margin: 0; }
+  .btn-group { display: flex; gap: 10px; }
+  .btn {
+    padding: 9px 20px;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid transparent;
+  }
+  .btn-secondary { background: var(--bg-surface); border-color: var(--border-color); color: var(--text-muted); }
+  .btn-primary { background: var(--primary); color: #fff; }
+  .btn-primary:hover { background: var(--primary-hover); }
+
+  /* 2-Column Responsive Layout */
+  .layout-grid {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 20px;
+    align-items: start;
+  }
+
+  /* Structural Cards */
+  .card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 20px 24px;
+    margin-bottom: 20px;
+  }
+  .card-title {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--primary);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* 12-Column Flexible Form System */
+  .grid-12 {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 14px 16px;
+  }
+  .col-12 { grid-column: span 12; }
+  .col-8  { grid-column: span 8; }
+  .col-6  { grid-column: span 6; }
+  .col-4  { grid-column: span 4; }
+  .col-3  { grid-column: span 3; }
+  .col-2  { grid-column: span 2; }
+
+  /* Inputs & Labels */
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  .field label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+  }
+  .field input, .field select {
+    background: #F8FAFC;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 13px;
+    color: var(--text-main);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .field input:focus, .field select:focus {
+    border-color: var(--border-focus);
+    background: #fff;
+  }
+
+  /* Summary Sidebar Specifics */
+  .summary-stat {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px dashed var(--border-color);
+    font-size: 13px;
+  }
+  .summary-stat:last-child { border-bottom: none; }
+  .stat-label { color: var(--text-muted); }
+  .stat-val { font-weight: 700; }
+
+  @media (max-width: 1024px) {
+    .layout-grid { grid-template-columns: 1fr; }
+    .col-3, .col-4, .col-2 { grid-column: span 6; }
+  }
+</style>
+</head>
+<body>
+
+<div class="form-shell">
+  <!-- Top Bar -->
+  <header class="page-header">
+    <div>
+      <h1>Create New Consignment</h1>
+      <span style="font-size: 12px; color: var(--text-muted);">Fill in international transport details, commercial values, and clearance files.</span>
+    </div>
+    <div class="btn-group">
+      <button type="button" class="btn btn-secondary">Cancel</button>
+      <button type="submit" class="btn btn-primary">Save Consignment</button>
+    </div>
+  </header>
+
+  <form class="layout-grid">
+    <!-- Left Column: Main Form Sections -->
+    <div class="main-form">
+      
+      <!-- 1. General & Entity Information -->
+      <section class="card">
+        <div class="card-title">1. Parties & Commercial Documentation</div>
+        <div class="grid-12">
+          <div class="field col-6">
+            <label>Consignee Name</label>
+            <input type="text" placeholder="e.g., Global Apparel Partners LLC">
+          </div>
+          <div class="field col-6">
+            <label>Forwarder / Carrier</label>
+            <input type="text" placeholder="e.g., Maersk Cambodia">
+          </div>
+          <div class="field col-4">
+            <label>Invoice Number</label>
+            <input type="text" placeholder="INV-2026-001">
+          </div>
+          <div class="field col-4">
+            <label>Invoice Date</label>
+            <input type="date">
+          </div>
+          <div class="field col-4">
+            <label>Destination Country</label>
+            <select>
+              <option>United States</option>
+              <option>Germany</option>
+              <option>Japan</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. Transport, Container & Vessel -->
+      <section class="card">
+        <div class="card-title">2. Container & Vessel Details</div>
+        <div class="grid-12">
+          <div class="field col-4">
+            <label>HBL Number</label>
+            <input type="text" placeholder="HBL-449102">
+          </div>
+          <div class="field col-4">
+            <label>Booking / SO Number</label>
+            <input type="text" placeholder="SO-982124">
+          </div>
+          <div class="field col-4">
+            <label>Container Number</label>
+            <input type="text" placeholder="MRKU8974303">
+          </div>
+          <div class="field col-3">
+            <label>Container Size</label>
+            <select>
+              <option>40'HQ</option>
+              <option>20'GP</option>
+              <option>45'HQ</option>
+            </select>
+          </div>
+          <div class="field col-3">
+            <label>Liner Seal</label>
+            <input type="text" placeholder="LS-4471">
+          </div>
+          <div class="field col-3">
+            <label>Customs Seal</label>
+            <input type="text" placeholder="CS-9021">
+          </div>
+          <div class="field col-3">
+            <label>Clearance Status</label>
+            <select>
+              <option>Pending</option>
+              <option>Cleared</option>
+            </select>
+          </div>
+          <div class="field col-6">
+            <label>Vessel Name</label>
+            <input type="text" placeholder="MSC ARINA">
+          </div>
+          <div class="field col-3">
+            <label>Voyage No.</label>
+            <input type="text" placeholder="V.221E">
+          </div>
+          <div class="field col-3">
+            <label>CRD Date</label>
+            <input type="date">
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. Cargo, Valuation & Quantities -->
+      <section class="card">
+        <div class="card-title">3. Cargo Specifications & Valuation</div>
+        <div class="grid-12">
+          <div class="field col-4">
+            <label>PO Number</label>
+            <input type="text" placeholder="PO-9931">
+          </div>
+          <div class="field col-4">
+            <label>Style Number</label>
+            <input type="text" placeholder="ST-102">
+          </div>
+          <div class="field col-4">
+            <label>HTS Code</label>
+            <input type="text" placeholder="6109.10.00">
+          </div>
+          <div class="field col-3">
+            <label>Total CTNS</label>
+            <input type="number" placeholder="260">
+          </div>
+          <div class="field col-3">
+            <label>Qty (PCS)</label>
+            <input type="number" placeholder="12400">
+          </div>
+          <div class="field col-3">
+            <label>Net Weight (KG)</label>
+            <input type="number" placeholder="5200">
+          </div>
+          <div class="field col-3">
+            <label>Gross Weight (KG)</label>
+            <input type="number" placeholder="5450">
+          </div>
+          <div class="field col-4">
+            <label>CBM Total</label>
+            <input type="number" step="0.01" placeholder="32.50">
+          </div>
+          <div class="field col-4">
+            <label>FOB Unit Price ($)</label>
+            <input type="number" step="0.01" placeholder="2.40">
+          </div>
+          <div class="field col-4">
+            <label>Total FOB ($)</label>
+            <input type="number" step="0.01" placeholder="29760.00">
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. Customs Clearance -->
+      <section class="card">
+        <div class="card-title">4. Customs Declaration & Origin</div>
+        <div class="grid-12">
+          <div class="field col-4">
+            <label>Declare Number</label>
+            <input type="text" placeholder="DCL-5521">
+          </div>
+          <div class="field col-4">
+            <label>Declare Date</label>
+            <input type="date">
+          </div>
+          <div class="field col-4">
+            <label>CO Number & Form</label>
+            <input type="text" placeholder="CO-26040 (Form D)">
+          </div>
+          <div class="field col-6">
+            <label>ETD Port & Date</label>
+            <input type="text" placeholder="Sihanoukville (PAS)">
+          </div>
+          <div class="field col-6">
+            <label>ATD Date</label>
+            <input type="date">
+          </div>
+          <div class="field col-12">
+            <label>Cargo Description & Remarks</label>
+            <input type="text" placeholder="100% Knitted Cotton Apparel items...">
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- Right Column: Shipment Configuration & Live Stats -->
+    <aside class="side-panel">
+      
+      <div class="card">
+        <div class="card-title">Consignment Mode</div>
+        <div class="field" style="margin-bottom: 12px;">
+          <label>Client Account</label>
+          <select>
+            <option>JR APPAREL CORP</option>
+            <option>VFL APPAREL</option>
+            <option>JIN YUAN XI</option>
+          </select>
+        </div>
+        <div class="field" style="margin-bottom: 12px;">
+          <label>Flow Type</label>
+          <select>
+            <option>EXPORT</option>
+            <option>IMPORT</option>
+          </select>
+        </div>
+        <div class="field" style="margin-bottom: 12px;">
+          <label>Mode of Transit</label>
+          <select>
+            <option>BY SEA</option>
+            <option>BY AIR</option>
+            <option>BY ROAD</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Fulfillment Terms</label>
+          <select>
+            <option>CY / CY</option>
+            <option>CFS / CFS</option>
+            <option>DOOR / DOOR</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Live Estimates</div>
+        <div class="summary-stat">
+          <span class="stat-label">Calculated CBM:</span>
+          <span class="stat-val">32.50 m³</span>
+        </div>
+        <div class="summary-stat">
+          <span class="stat-label">Payload Margin:</span>
+          <span class="stat-val">93% (40'HQ)</span>
+        </div>
+        <div class="summary-stat">
+          <span class="stat-label">Est. Total FOB:</span>
+          <span class="stat-val" style="color:var(--primary);">$29,760.00</span>
+        </div>
+      </div>
+
+    </aside>
+  </form>
+</div>
+
+</body>
+</html>

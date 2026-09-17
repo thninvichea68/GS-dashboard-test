@@ -1,0 +1,2720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Logistics Operations & Finance System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Geist:ital,wght@0,100..900;1,100..900&family=Moul&family=Siemreap&family=Noto+Sans+Khmer:wght@400;500;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
+  <style>
+    :root {
+      --bg-base: #0b0f19;
+      --bg-surface: #111827;
+      --bg-card: #1f2937;
+      --bg-input: #0e1524;
+      --border-subtle: #2d3748;
+      --border-focus: #3b82f6;
+      
+      --accent-primary: #2563eb;
+      --accent-hover: #1d4ed8;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      --accent-purple: #8b5cf6;
+
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --text-dim: #6b7280;
+
+      --tbl-header: #0f2744;
+      --tbl-row-1: #1a3320;
+      --tbl-row-2: #142819;
+      --tbl-border: #234e2c;
+
+      --font-sans: 'Geist', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --font-khmer: 'Khmer OS Muol', 'Khmer OS Muol Light', serif;
+      --font-khmer-2: 'Siemreap', 'Noto Sans Khmer', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: var(--font-sans);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      background: var(--bg-base);
+      color: var(--text-main);
+      overflow: hidden;
+    }
+
+    .lbl-km-muol {
+      font-family: var(--font-khmer) !important;
+      font-size: 8.8pt;
+      font-weight: 500;
+      color: #000;
+    }
+
+    /* Customer Name Styling */
+    .cust-name-km {
+      font-family: 'Khmer OS Muol Light', sans-serif !important;
+      font-size: 10pt;
+      font-weight: 500;
+      color: #000;
+      margin-left: 4px;
+    }
+    .cust-name-en {
+      font-family: var(--font-sans);
+      font-size: 10pt;
+      font-weight: 700;
+      color: #000;
+      margin-top: 1px;
+      margin-bottom: 3px;
+    }
+
+    /* --- TOP APP HEADER --- */
+    .app-header {
+      height: 62px;
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      flex-shrink: 0;
+      z-index: 50;
+    }
+
+    .brand-cluster {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-icon {
+      width: 34px;
+      height: 34px;
+      background: linear-gradient(135deg, var(--accent-primary), #6366f1);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: 700;
+      font-size: 16px;
+      box-shadow: 0 0 12px rgba(37, 99, 235, 0.4);
+    }
+
+    .brand-text h1 {
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: -0.2px;
+      color: #fff;
+    }
+    .brand-text p {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .nav-tabs {
+      display: flex;
+      background: #090d16;
+      padding: 4px;
+      border-radius: 8px;
+      border: 1px solid var(--border-subtle);
+      gap: 4px;
+      overflow-x: auto;
+    }
+
+    .nav-tab-btn {
+      background: transparent;
+      color: var(--text-muted);
+      border: none;
+      padding: 7px 14px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease-in-out;
+      white-space: nowrap;
+    }
+
+    .nav-tab-btn:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .nav-tab-btn.active {
+      background: var(--accent-primary);
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.35);
+    }
+
+    /* --- WORKSPACE VIEWPORT --- */
+    .workspace {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .tab-view {
+      display: none;
+      width: 100%;
+      height: 100%;
+    }
+
+    .tab-view.active {
+      display: flex;
+    }
+
+    /* --- ACCOUNTANT MONTHLY DASHBOARD --- */
+    /* ============================================================
+       MONTHLY LEDGER — premium light mode (scoped to .acc-* only)
+       Palette: warm paper white, single ink-navy accent, muted
+       green/red for financial sense only, brass for manual entry.
+       ============================================================ */
+    .acc-layout {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      padding: 24px 28px;
+      gap: 18px;
+      overflow-y: auto;
+      background: #F6F5F1;
+    }
+
+    .acc-toolbar {
+      background: #FFFFFF;
+      border: 1px solid #E7E4DC;
+      border-radius: 10px;
+      padding: 18px 22px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      gap: 16px;
+      box-shadow: 0 1px 2px rgba(20, 20, 15, 0.04), 0 8px 20px rgba(20, 20, 15, 0.03);
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .field-group label {
+      font-size: 10.5px;
+      font-weight: 700;
+      color: #8B8579;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .input-box {
+      background: #FBFAF7;
+      border: 1px solid #DEDACD;
+      color: #1E1D19;
+      padding: 9px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      outline: none;
+      min-width: 200px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .input-box::placeholder { color: #B4AFA1; }
+
+    .input-box:focus {
+      border-color: #1F2A44;
+      box-shadow: 0 0 0 3px rgba(31, 42, 68, 0.08);
+    }
+
+    /* Buttons: scoped to the Monthly Ledger toolbar only, so every
+       other tab's .btn-core keeps its original dark styling. One
+       ink-navy primary action; the rest are quiet ghost buttons. */
+    .acc-toolbar .btn-core {
+      background: #1F2A44;
+      color: #F8F7F3;
+      border: 1px solid #1F2A44;
+      padding: 9px 16px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 12.5px;
+      cursor: pointer;
+      height: 38px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: none;
+      transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+      white-space: nowrap;
+    }
+    .acc-toolbar .btn-core:hover { background: #141C30; }
+    .acc-toolbar .btn-core:active { transform: translateY(1px); }
+
+    .acc-toolbar .btn-core.btn-secondary,
+    .acc-toolbar .btn-core.btn-success,
+    .acc-toolbar .btn-core.btn-danger,
+    .acc-toolbar .btn-core.btn-amber {
+      background: #FFFFFF;
+      color: #1E1D19;
+      border: 1px solid #DEDACD;
+    }
+    .acc-toolbar .btn-core.btn-success  { border-color: #C6DACB; }
+    .acc-toolbar .btn-core.btn-danger   { border-color: #E5C6C6; }
+    .acc-toolbar .btn-core.btn-amber    { border-color: #E8D6A8; }
+    .acc-toolbar .btn-core.btn-secondary:hover,
+    .acc-toolbar .btn-core.btn-success:hover,
+    .acc-toolbar .btn-core.btn-danger:hover,
+    .acc-toolbar .btn-core.btn-amber:hover {
+      background: #F3F1EA;
+      border-color: #C9C4B4;
+    }
+
+    .acc-table-viewport {
+      background: #FFFFFF;
+      border: 1px solid #E7E4DC;
+      border-radius: 10px;
+      flex: 1;
+      overflow: auto;
+      box-shadow: 0 1px 2px rgba(20, 20, 15, 0.04), 0 8px 20px rgba(20, 20, 15, 0.03);
+    }
+
+    .acc-table {
+      width: 100%;
+      border-collapse: collapse;
+      white-space: nowrap;
+      font-size: 12px;
+    }
+
+    .acc-table th {
+      background: #FBFAF7;
+      color: #4A4638;
+      padding: 12px 10px;
+      font-size: 10.5px;
+      font-weight: 700;
+      border: 1px solid #E7E4DC;
+      border-bottom: 2px solid #1F2A44;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .acc-table td {
+      padding: 8px 10px;
+      border: 1px solid #EFEDE6;
+      text-align: center;
+      color: #2A2924;
+    }
+
+    .acc-table tbody tr {
+      background: #FFFFFF;
+      color: #2A2924;
+      font-weight: 500;
+      transition: background 0.1s ease;
+    }
+
+    .acc-table tbody tr:nth-child(even) {
+      background: #FAF9F5;
+    }
+
+    .acc-table tbody tr:hover {
+      background: #F2EFE7;
+    }
+
+    .table-inline-input {
+      background: #FFFBF0;
+      border: 1px solid #E6D9AE;
+      color: #7A5C1E;
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      font-weight: 700;
+      padding: 5px 8px;
+      border-radius: 4px;
+      width: 115px;
+      text-align: center;
+      outline: none;
+      transition: all 0.15s ease;
+    }
+    .table-inline-input:focus {
+      border-color: #B8912F;
+      background: #FFF7E0;
+      box-shadow: 0 0 0 3px rgba(184, 145, 47, 0.12);
+    }
+
+    .btn-table-update {
+      background: #1F2A44;
+      color: #F8F7F3;
+      border: none;
+      padding: 4px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      border-radius: 4px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: background 0.15s ease;
+    }
+    .btn-table-update:hover { background: #141C30; }
+
+    .badge-status {
+      padding: 3px 9px;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 10px;
+      letter-spacing: 0.4px;
+      border: 1px solid transparent;
+    }
+    .badge-paid   { background: #EEF4EF; color: #2F6F4E; border-color: #CFE3D4; }
+    .badge-unpaid { background: #FBEEEE; color: #A23B3B; border-color: #EACECE; }
+
+    .mono-num {
+      text-align: right;
+      font-family: var(--font-mono);
+      font-weight: 600;
+      color: #2A2924;
+    }
+    .val-positive  { color: #2F6F4E; font-weight: 700; }
+    .val-negative  { color: #A23B3B; font-weight: 700; }
+    .val-highlight { color: #1F2A44; font-weight: 700; }
+
+    /* --- FORM EDITORS & PREVIEW ENGINE --- */
+    .editor-pane {
+      width: 900px;
+      flex-shrink: 0;
+      background: #ffffff;
+      color: #111827;
+      border-right: 1px solid #e5e7eb;
+      display: flex;
+      flex-direction: column;
+      z-index: 20;
+      box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .editor-head {
+      padding: 14px 20px;
+      background: #111827;
+      color: #fff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+    .editor-head h2 { font-size: 14px; font-weight: 700; }
+    .editor-head p { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+    .editor-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      background: #f9fafb;
+    }
+
+    .panel-card {
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .panel-header {
+      background: #f3f4f6;
+      padding: 10px 14px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 12px;
+      color: #1f2937;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      user-select: none;
+      border-bottom: 1px solid transparent;
+    }
+    .panel-header:hover { background: #e5e7eb; }
+    .panel-header::after { content: '▾'; font-size: 14px; transition: transform 0.2s; color: #6b7280; }
+    .panel-card.active .panel-header::after { transform: rotate(180deg); }
+    .panel-card.active .panel-header { border-bottom-color: #e5e7eb; }
+
+    .panel-body {
+      padding: 14px;
+      display: none;
+      background: #ffffff;
+    }
+    .panel-card.active .panel-body { display: block; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 8px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+
+    .form-item { margin-bottom: 8px; }
+    .form-item label {
+      display: block;
+      font-size: 10.5px;
+      font-weight: 700;
+      color: #4b5563;
+      margin-bottom: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+    .form-input {
+      width: 100%;
+      padding: 7px 10px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 12.5px;
+      background: #fff;
+      color: #111827;
+      transition: all 0.15s ease;
+    }
+    .form-input:focus {
+      outline: none;
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+    .form-input-amber {
+      background: #fffbeb;
+      border-color: #fcd34d;
+      color: #92400e;
+      font-weight: 700;
+    }
+
+    .row-item {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      background: #f9fafb;
+      padding: 6px 8px;
+      border-radius: 6px;
+      margin-bottom: 6px;
+      border: 1px solid #e5e7eb;
+    }
+
+    .btn-row-del {
+      width: 28px;
+      height: 28px;
+      color: #ef4444;
+      background: #fff;
+      border: 1px solid #fca5a5;
+      border-radius: 5px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      flex-shrink: 0;
+      transition: all 0.15s;
+    }
+    .btn-row-del:hover { background: #fee2e2; color: #dc2626; }
+
+    .btn-add-item {
+      width: 100%;
+      padding: 8px;
+      background: #f3f4f6;
+      border: 1px dashed #9ca3af;
+      color: #1f2937;
+      font-size: 12px;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 6px;
+      transition: all 0.15s;
+    }
+    .btn-add-item:hover { background: #e5e7eb; border-color: #6b7280; }
+
+    .editor-foot {
+      padding: 12px 16px;
+      border-top: 1px solid #e5e7eb;
+      background: #ffffff;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+    }
+
+    .preview-pane {
+      flex: 1;
+      background: #1e293b;
+      overflow-y: auto;
+      padding: 36px 20px;
+      display: flex;
+      justify-content: center;
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Base Paper Sheet for CN, RS, DN */
+    .paper-sheet {
+      width: 210mm;
+      min-height: 297mm;
+      background: #ffffff;
+      padding: 10mm 8mm;
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45);
+      color: #000000;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 9pt;
+      position: relative;
+    }
+
+    .doc-headline {
+      text-align: center;
+      font-size: 15pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      text-decoration: underline;
+      text-underline-offset: 4px;
+      margin-bottom: 18px;
+    }
+
+    .info-dual-col {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .info-dual-col .col-l { flex: 1; min-width: 0; }
+    .info-dual-col .col-r { flex: 0 0 260px; }
+
+    .info-line {
+      display: flex;
+      margin-bottom: 3px;
+      font-size: 8pt;
+      line-height: 1.35;
+    }
+    .info-line .lbl { width: 95px; font-weight: 700; color: #000; flex-shrink: 0; }
+    .info-line .val { flex: 1; font-weight: 700; word-break: break-word; }
+
+    .preview-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 8pt;
+      border: 0.5pt solid #000;
+    }
+
+    .preview-table th {
+      background: #7fdbf5;
+      color: #000;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 3px 4px;
+      border: 0.5pt solid #000;
+      text-align: center;
+      line-height: 1.25;
+    }
+
+    .preview-table td {
+      border: 0.5pt solid #000;
+      padding: 3px 6px;
+      vertical-align: middle;
+      line-height: 1.25;
+    }
+
+    .preview-table .sum-row td {
+      background: #7fdbf5 !important;
+      font-weight: 700;
+      border-top: 1pt solid #000;
+    }
+
+    /* Record Summary Styles */
+    .rs-masthead-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      margin-bottom: 4px;
+      min-height: 70px;
+    }
+
+    .rs-logo-container {
+      position: absolute;
+      left: 0;
+      top: 60%;
+      transform: translateY(-50%);
+      width: 150px;
+      height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .rs-logo-img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+
+    .rs-logo-fallback {
+      display: none;
+      width: 50px;
+      height: 50px;
+      border: 2px solid #000;
+      border-radius: 50%;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 15pt;
+      letter-spacing: -1px;
+    }
+
+    .rs-company-details {
+      text-align: center;
+      padding: 0 80px;
+    }
+    .rs-khmer-brand-record { 
+      font-family: var(--font-khmer); 
+      font-size: 10.5pt; 
+      font-weight: 500; 
+      margin-bottom: 2px; 
+    }
+    .rs-eng-brand-record { 
+      font-size: 9.5pt; 
+      font-weight: 700; 
+    }
+    .rs-vat-brand-record { 
+      font-family: var(--font-khmer-2); 
+      font-size: 8.5pt; 
+      margin-top: 2px; 
+    }
+
+    .rs-doc-title { 
+      text-align: center; 
+      font-size: 13pt; 
+      font-weight: 700; 
+      text-decoration: underline; 
+      text-underline-offset: 4px; 
+      margin: 4px 0 10px 0; 
+    }
+
+    .rs-box-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border: 1px solid #000;
+      padding: 6px 10px;
+      gap: 4px 14px;
+      margin-bottom: 10px;
+      font-size: 8pt;
+    }
+    .rs-box-grid .box-row { display: flex; align-items: center; }
+    .rs-box-grid .box-lbl { font-weight: 700; width: 125px; flex-shrink: 0; }
+    .rs-box-grid .box-val { font-weight: 700; border-bottom: 0.2px solid #c0c0c0; flex: 1; min-height: 14px; }
+    .checkboxes { display: flex; gap: 12px; font-weight: 700; }
+
+    /* =========================================================
+       EXACT REDESIGN: TAX INVOICE & DISBURSEMENT
+       ========================================================= */
+    #paper-tax,
+    #paper-dis {
+      width: 210mm;
+      min-height: 297mm;
+      background: #ffffff;
+      padding: 10mm 8mm;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      color: #000000;
+      font-family: var(--font-khmer-2), Arial, sans-serif;
+      font-size: 8.5pt;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #paper-tax *, #paper-dis * {
+      box-sizing: border-box;
+    }
+
+    .invoice-masthead {
+      position: relative;
+      text-align: center;
+      margin-bottom: 6px;
+      padding-top: 2px;
+    }
+
+    .invoice-logo-left {
+      position: absolute;
+      left: 10px;
+      top: 0;
+      width: 120px;
+      height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .invoice-logo-left img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+
+    .invoice-company-name-km {
+      font-family: var(--font-khmer) !important;
+      font-size: 13.5pt;
+      font-weight: 500;
+      color: #000;
+      margin-bottom: 3px;
+      letter-spacing: 0.2px;
+    }
+
+    .invoice-company-name-en {
+      font-family: var(--font-sans);
+      font-size: 11.5pt;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      margin-bottom: 3px;
+    }
+
+    .invoice-vattin {
+      font-size: 9.5pt;
+      font-weight: 600;
+      margin-bottom: 2px;
+      font-family: var(--font-khmer-2), sans-serif;
+    }
+
+    .invoice-address-bar {
+      font-size: 8pt;
+      line-height: 1.4;
+      color: #111;
+      font-family: var(--font-khmer-2), sans-serif;
+    }
+
+    .invoice-title-block {
+      text-align: center;
+      margin: 14px 0 14px 0;
+      border-top: 3px solid black;
+    }
+
+    .invoice-title-km {
+      font-family: var(--font-khmer) !important;
+      font-size: 14pt;
+      font-weight: 500;
+      margin-bottom: 1px;
+      margin-top: 5px;
+    }
+
+    .invoice-title-en {
+      font-family: var(--font-sans);
+      font-size: 13pt;
+      font-weight: 800;
+    }
+
+    /* Dual-Column Customer & Shipping Meta Info */
+    .invoice-meta-grid {
+      display: grid;
+      grid-template-columns: 1.25fr 1fr;
+      gap: 20px;
+      font-size: 8.2pt;
+      line-height: 1.55;
+      margin-bottom: 10px;
+    }
+
+    .invoice-meta-right {
+      text-align: right;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+    }
+
+    .meta-lbl-km {
+      font-weight: 500;
+      font-family: var(--font-khmer-2), sans-serif;
+      font-size: 10pt;
+    }
+
+    .meta-val {
+      font-weight: 500;
+      word-break: break-word;
+            font-size: 10pt;
+    }
+
+    /* Itemized Breakdown Table */
+    .invoice-clean-table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      font-size: 8pt;
+      margin-top: 6px;
+      border-top: 2px solid #000;
+      border-bottom: none;
+    }
+
+    .invoice-clean-table th {
+      background: transparent;
+      color: #000;
+      font-weight: 700;
+      padding: 6px 4px;
+      text-align: center;
+      vertical-align: middle;
+      line-height: 1.3;
+      border-bottom: 2px solid #000;
+      font-family: var(--font-khmer-2), sans-serif;
+    }
+
+    .invoice-clean-table td {
+      padding: 10px 4px;
+      vertical-align: middle;
+      border: none;
+      line-height: 1.3;
+      font-family: var(--font-khmer-2), sans-serif;
+    }
+
+    /* Full-width spanning totals table with matching fixed columns */
+    .invoice-totals-wrapper {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      font-size: 8.2pt;
+      margin-top: 2px;
+      border-top: 3px double #000;
+      border-bottom: 3px double #000;
+    }
+
+    .invoice-totals-wrapper td {
+      padding: 4px 4px;
+      font-weight: 700;
+      line-height: 1.4;
+      font-family: var(--font-khmer-2), sans-serif;
+    }
+
+    .invoice-totals-wrapper .val-col {
+      text-align: right;
+      font-family: var(--font-khmer-2), sans-serif;
+    }
+
+    .invoice-payment-note {
+      font-size: 7.8pt;
+      line-height: 1.45;
+      margin-top: 16px;
+      color: #000;
+      font-family: var(--font-khmer-2), sans-serif;
+    }
+
+.invoice-sign-section {
+  margin-top: auto;
+  padding-top: 55px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start; /* Changed from flex-end to flex-start */
+  font-size: 8.5pt;
+  font-weight: 700;
+  font-family: var(--font-khmer-2), sans-serif;
+}
+
+    .invoice-sign-col {
+      width: 240px;
+      text-align: center;
+      font-family: var(--font-khmer-2), sans-serif;
+    }
+
+    .invoice-sign-rule {
+      width: 100%;
+      border-bottom: 2px solid #000;
+      margin-bottom: 8px;
+      font-family: var(--font-khmer-2), sans-serif;
+    }
+    .invoice-copy-legend-sign {
+      font-size: 7.5pt;
+      color: #000000;
+      margin-top: 6px;
+      line-height: 1.3;
+      font-weight: normal;
+      font-family: var(--font-khmer-2), sans-serif;
+      width: 300px;
+      text-align: left;
+    }
+        .invoice-copy-legend-sign-right {
+      font-size: 7.5pt;
+      color: #000000;
+      margin-top: 6px;
+      line-height: 1.3;
+      font-weight: normal;
+      font-family: var(--font-khmer-2), sans-serif;
+      width: 240px;
+      text-align: right;
+    }
+    .invoice-copy-legend {
+      font-size: 7.5pt;
+      color: #444;
+      margin-top: 6px;
+      line-height: 1.3;
+      font-weight: normal;
+      font-family: var(--font-khmer-2), sans-serif;
+      width: 300px;
+      text-align: left;
+    }
+
+    @media print {
+      body { background: white; height: auto; overflow: visible; }
+      .app-header, .editor-pane { display: none !important; }
+      .preview-pane { padding: 0; background: white; height: auto; }
+      .paper-sheet, #paper-tax, #paper-dis { box-shadow: none; margin: 0; width: 100%; padding: 8mm; }
+      @page { size: A4 portrait; margin: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="app-header">
+    <div class="brand-cluster">
+      <div class="brand-icon">GS</div>
+      <div class="brand-text">
+        <h1>Grateful Solutions Logistics Hub</h1>
+        <p>Operations Logistics & Automated Accounting Engine</p>
+      </div>
+    </div>
+    <nav class="nav-tabs">
+      <button class="nav-tab-btn active" onclick="switchTab('acc')"><span>📊</span> 1. Monthly Ledger</button>
+      <button class="nav-tab-btn" onclick="switchTab('cn')"><span>📑</span> 2. Chea Payment</button>
+      <button class="nav-tab-btn" onclick="switchTab('rs')"><span>📦</span> 3. Record Summary</button>
+      <button class="nav-tab-btn" onclick="switchTab('tax')"><span>🧾</span> 4. Tax Invoice</button>
+      <button class="nav-tab-btn" onclick="switchTab('dis')"><span>💵</span> 5. Disbursement</button>
+      <button class="nav-tab-btn" onclick="switchTab('dn')"><span>📝</span> 6. Debit Note</button>
+    </nav>
+  </header>
+
+  <main class="workspace">
+
+    <!-- VIEW 1: ACCOUNTANT MONTHLY LEDGER -->
+    <section id="view-acc" class="tab-view active">
+      <div class="acc-layout">
+        <div class="acc-toolbar">
+          <div class="field-group">
+            <label for="accInputDeclare">Input Declare Only</label>
+            <input list="declareList" id="accInputDeclare" class="input-box" placeholder="e.g. I 122050 or I 95925" autocomplete="off" />
+            <datalist id="declareList">
+              <option value="I 122050">JR APPAREL (SHV - THC $355)</option>
+              <option value="I 95925">SPORTLINE (SHV11)</option>
+              <option value="E 28011">JIN YUAN XI (PNH01)</option>
+              <option value="E 28017">JIN YUAN XI (PNH01)</option>
+              <option value="E 27975">SPORTLINE (PNH01)</option>
+            </datalist>
+          </div>
+
+          <div class="field-group">
+            <label for="accExRate">Exchange Rate (USD ➔ KHR)</label>
+            <input type="number" id="accExRate" class="input-box" value="4026" style="min-width: 140px;" onchange="updateAllExchangeRates(this.value)" />
+          </div>
+
+          <button class="btn-core" onclick="handlePullMonthly()"><span>⚡</span> Pull & Calculate</button>
+          <button class="btn-core btn-amber" onclick="updateAllMonthlyToRecordSummary()"><span>📤</span> Sync to Record Summary</button>
+          <button class="btn-core btn-success" onclick="exportAccToExcel()"><span>📥</span> Export Excel</button>
+          <button class="btn-core btn-danger" onclick="clearMonthlyLedger()"><span>🗑️</span> Clear Sheet</button>
+        </div>
+
+        <div class="acc-table-viewport">
+          <table class="acc-table" id="accountantTable">
+            <thead>
+              <tr>
+                <th>CHEA PAYMENT</th>
+                <th>PORT NUMBER</th>
+                <th>PORT CODE</th>
+                <th>PORT NAME</th>
+                <th>DECLARE</th>
+                <th>DATE</th>
+                <th>CLIENT</th>
+                <th style="background:#1e3a8a; color:#facc15;">INV (MANUAL)</th>
+                <th style="background:#1e3a8a; color:#facc15;">DISBURSEMENT (MANUAL)</th>
+                <th style="background:#1e3a8a; color:#facc15;">DN (MANUAL)</th>
+                <th>ACTION</th>
+                <th>DATE (INV)</th>
+                <th>EXCHANGE RATE</th>
+                <th>WEEKDAY</th>
+                <th>CLEAR FEE</th>
+                <th>THC</th>
+                <th>OTHER PAY</th>
+                <th>CM</th>
+                <th>INV (REVENUE)</th>
+                <th style="color:#60a5fa;">DIS (FORMULA)</th>
+                <th>VAT 10%</th>
+                <th>DN TOTAL</th>
+                <th>NET PROFIT</th>
+                <th>MARK</th>
+              </tr>
+            </thead>
+            <tbody id="accTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 2: CHEA PAYMENT (CREDIT NOTE) -->
+    <section id="view-cn" class="tab-view">
+      <div class="editor-pane">
+        <div class="editor-head">
+          <div>
+            <h2>Credit Noted (Chea Payment)</h2>
+            <p>Generate clean payment vouchers for operations & finance</p>
+          </div>
+          <button class="btn-core btn-success" style="height:32px; padding:4px 12px; font-size:11.5px;" onclick="submitCheaPaymentToMonthly()">
+            <span>📤</span> Submit to Monthly
+          </button>
+        </div>
+
+        <div class="editor-body">
+          <div class="panel-card active" id="card-cn-meta">
+            <div class="panel-header" onclick="toggleAccordion('card-cn-meta')">1. HEADER INFORMATION</div>
+            <div class="panel-body">
+              <div class="form-item">
+                <label>Bill To</label>
+                <input type="text" id="cn_in_billTo" class="form-input" style="background:#f3f4f6; font-weight:700; color:#4b5563;" value="GRATEFUL SOLUTIONS (CAMBODIA) CO.,LTD" readonly />
+              </div>
+              <div class="grid-2">
+                <div class="form-item">
+                  <label>Date</label>
+                  <input type="date" id="cn_in_date" class="form-input" onchange="renderCnPreview()" />
+                </div>
+                <div class="form-item">
+                  <label>Declare No</label>
+                  <input type="text" id="cn_in_declar" value="I 122050" class="form-input" onkeyup="renderCnPreview()" />
+                </div>
+              </div>
+              <div class="form-item">
+                <label>Shipper / Factory</label>
+                <select id="cn_in_shipper" class="form-input" onchange="handleShipperSelect('cn_in_shipper'); renderCnPreview()">
+                  <option value="">-- Select Shipper --</option>
+                  <option selected>JR APPAREL (CAMBODIA) CO., LTD</option>
+                  <option>SPORTLINE APPAREL (CAMBODIA) CO., LTD</option>
+                  <option>JIN YUAN XI GARMENT CO., LTD</option>
+                  <option>VFL APPAREL (CAMBODIA) CO., LTD</option>
+                  <option value="__add_new__">+ Add New Shipper</option>
+                </select>
+              </div>
+              <div class="form-item">
+                <label>Address</label>
+                <textarea id="cn_in_address" class="form-input" style="min-height:45px; resize:none; background:#f3f4f6; color:#4b5563;" readonly>#7E0, Beton Street, Group 7, Tuol Thngan Village, Tuol Sangke II Sangkat, Russey Keo District, Phnom Penh, Cambodia.</textarea>
+              </div>
+              <div class="grid-2">
+                <div class="form-item">
+                  <label>Port</label>
+                  <select id="cn_in_port" class="form-input" onchange="handlePortSelect('cn_in_port'); renderCnPreview()">
+                    <option value="">-- Select Port --</option>
+                    <option selected>SIHANOUKVILLE</option>
+                    <option>PHNOM PENH PORT</option>
+                    <option>TECHO INTERNATIONAL AIRPORT</option>
+                    <option>TECSRUN DRY PORT</option>
+                    <option>O'LAIR DRY PORT</option>
+                    <option>ROYAL RAILWAY</option>
+                    <option value="__add_new__">+ Add New Port</option>
+                  </select>
+                </div>
+                <div class="form-item">
+                  <label>Container</label>
+                  <input type="text" id="cn_in_cnt" value="MRKU8974303 (1X20'GP)" class="form-input" onkeyup="renderCnPreview()" />
+                </div>
+              </div>
+              <div class="grid-2">
+                <div class="form-item">
+                  <label>Ref Type / Number</label>
+                  <div style="display:flex; gap:6px;">
+                    <select id="cn_in_refType" class="form-input" style="flex:0 0 110px;" onchange="renderCnPreview()">
+                      <option value="HOUS BILL">HOUS BILL</option>
+                      <option value="BILL NO">BILL NO</option>
+                      <option value="HAWB NO">HAWB NO</option>
+                    </select>
+                    <input type="text" id="cn_in_hawb" value="274995778" class="form-input" onkeyup="renderCnPreview()" />
+                  </div>
+                </div>
+                <div class="form-item">
+                  <label>Qty / Unit</label>
+                  <input type="text" id="cn_in_qty" value="4 PKGS" class="form-input" onkeyup="renderCnPreview()" />
+                </div>
+              </div>
+              <div class="grid-2">
+                <div class="form-item">
+                  <label>Gross Weight</label>
+                  <input type="text" id="cn_in_gw" value="2,420 KGS" class="form-input" onkeyup="renderCnPreview()" />
+                </div>
+                <div class="form-item">
+                  <label>CBM</label>
+                  <input type="text" id="cn_in_cbm" value="12" class="form-input" onkeyup="renderCnPreview()" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel-card active" id="card-cn-items">
+            <div class="panel-header" onclick="toggleAccordion('card-cn-items')">2. CREDIT NOTED LINE ITEMS</div>
+            <div class="panel-body">
+              <div id="list-cn-inputs"></div>
+              <button class="btn-add-item" onclick="addCnItem()">+ Add Item</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="editor-foot">
+          <button class="btn-core btn-secondary" onclick="window.print()">Print</button>
+          <button class="btn-core" onclick="downloadVectorPDF('CreditNote', 'paper-cn')">PDF File</button>
+          <button class="btn-core btn-success" onclick="exportCnExcel()">Excel Export</button>
+        </div>
+      </div>
+
+      <div class="preview-pane">
+        <div class="paper-sheet" id="paper-cn">
+          <div class="doc-headline">CREDIT NOTED</div>
+          <div class="info-dual-col">
+            <div class="col-l">
+              <div class="info-line"><div class="lbl">BILL TO:</div><div class="val" id="cn_out_billTo"></div></div>
+              <div class="info-line"><div class="lbl">ADDRESS:</div><div class="val" id="cn_out_address"></div></div>
+              <div class="info-line"><div class="lbl">SHIPPER:</div><div class="val" id="cn_out_shipper"></div></div>
+              <div class="info-line"><div class="lbl">PORT:</div><div class="val" id="cn_out_port"></div></div>
+              <div class="info-line"><div class="lbl">CTNR:</div><div class="val" id="cn_out_cnt"></div></div>
+            </div>
+            <div class="col-r">
+              <div class="info-line"><div class="lbl">DECLARE NO:</div><div class="val" id="cn_out_declar"></div></div>
+              <div class="info-line"><div class="lbl" id="cn_out_refLabel">HOUS BILL:</div><div class="val" id="cn_out_hawb"></div></div>
+              <div class="info-line"><div class="lbl">DATE:</div><div class="val" id="cn_out_date"></div></div>
+              <div class="info-line"><div class="lbl">Q'TY:</div><div class="val" id="cn_out_qty"></div></div>
+              <div class="info-line"><div class="lbl">G.W:</div><div class="val" id="cn_out_gw"></div></div>
+              <div class="info-line"><div class="lbl">CBM:</div><div class="val" id="cn_out_cbm"></div></div>
+            </div>
+          </div>
+
+          <table class="preview-table">
+            <thead>
+              <tr>
+                <th style="width:28px;">NO</th>
+                <th>DESCRIPTION</th>
+                <th style="width:45px;">Q'TY</th>
+                <th style="width:55px;">SHIP</th>
+                <th style="width:65px;">PRICE</th>
+                <th style="width:75px;">SHPT</th>
+                <th style="width:90px;">MARK</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-cn-preview"></tbody>
+            <tfoot>
+              <tr class="sum-row">
+                <td colspan="5" style="text-align:right; padding-right:8px;">TOTAL:</td>
+                <td style="text-align:right; padding-right:8px;" id="cn_out_total">0.00</td>
+                <td></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 3: RECORD SUMMARY -->
+    <section id="view-rs" class="tab-view">
+      <div class="editor-pane">
+        <div class="editor-head">
+          <div>
+            <h2>Record Summary Operations</h2>
+            <p>Live invoice numbers populate automatically from Monthly updates</p>
+          </div>
+          <button class="btn-core btn-success" style="height:32px; padding:4px 12px; font-size:11.5px;" onclick="submitRecordSummaryToMonthly()">
+            <span>📤</span> Submit to Monthly
+          </button>
+        </div>
+
+        <div class="editor-body">
+          <div class="panel-card active" id="card-rs-meta">
+            <div class="panel-header" onclick="toggleAccordion('card-rs-meta')">1. RECORD SUMMARY HEADER</div>
+            <div class="panel-body">
+              <div class="grid-2">
+                <div class="form-item">
+                  <label>Shipment Mode</label>
+                  <select id="rs_in_mode" class="form-input" onchange="handleRsModeSwitch()">
+                    <option value="IMPORT" selected>IMPORT</option>
+                    <option value="EXPORT">EXPORT</option>
+                  </select>
+                </div>
+                <div class="form-item">
+                  <label>Transport Type</label>
+                  <select id="rs_in_transport" class="form-input" onchange="renderRsPreview()">
+                    <option value="SEA CY/CY" selected>SEA CY/CY</option>
+                    <option value="SEA LCL/LCL">SEA LCL/LCL</option>
+                    <option value="AIR">AIR</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="grid-3">
+                <div class="form-item">
+                  <label style="color:var(--accent-primary);">Invoice No</label>
+                  <input type="text" id="rs_in_inv" class="form-input form-input-amber" onkeyup="renderRsPreview()" />
+                </div>
+                <div class="form-item">
+                  <label style="color:var(--accent-primary);">Disbursement No</label>
+                  <input type="text" id="rs_in_dis" class="form-input form-input-amber" onkeyup="renderRsPreview()" />
+                </div>
+                <div class="form-item">
+                  <label style="color:var(--accent-primary);">Debit Note No</label>
+                  <input type="text" id="rs_in_dn" class="form-input form-input-amber" onkeyup="renderRsPreview()" />
+                </div>
+              </div>
+
+              <div class="grid-2">
+                <div class="form-item">
+                  <label>Factory / Client</label>
+                  <select id="rs_in_factory" class="form-input" onchange="handleShipperSelect('rs_in_factory'); renderRsPreview()">
+                    <option value="">-- Select Factory --</option>
+                    <option selected>JR APPAREL CO., LTD.</option>
+                    <option>SPORTLINE APPAREL.</option>
+                    <option>JIN YUAN XI GARMENT CO., LTD.</option>
+                    <option>VFL APPAREL (CAMBODIA) CO., LTD.</option>
+                    <option value="__add_new__">+ Add New</option>
+                  </select>
+                </div>
+                <div class="form-item">
+                  <label>Forwarder</label>
+                  <input type="text" id="rs_in_fwd" value="MAERSK" class="form-input" onkeyup="renderRsPreview()" />
+                </div>
+              </div>
+
+              <div class="grid-3">
+                <div class="form-item">
+                  <label>Port</label>
+                  <input type="text" id="rs_in_port" value="SHV" class="form-input" onkeyup="renderRsPreview()" />
+                </div>
+                <div class="form-item">
+                  <label>Declare No</label>
+                  <input type="text" id="rs_in_declar" value="I 122050" class="form-input" onkeyup="renderRsPreview()" />
+                </div>
+                <div class="form-item">
+                  <label>Date</label>
+                  <input type="text" id="rs_in_date" value="21-Aug-2026" class="form-input" onkeyup="renderRsPreview()" />
+                </div>
+              </div>
+
+              <div class="grid-3">
+                <div class="form-item">
+                  <label>Quantity</label>
+                  <input type="text" id="rs_in_qty" value="4 PKGS" class="form-input" onkeyup="renderRsPreview()" />
+                </div>
+                <div class="form-item">
+                  <label>BL / HBL No</label>
+                  <input type="text" id="rs_in_bl" value="274995778" class="form-input" onkeyup="renderRsPreview()" />
+                </div>
+                <div class="form-item">
+                  <label>Container No</label>
+                  <input type="text" id="rs_in_ctnr" value="MRKU8974303" class="form-input" onkeyup="renderRsPreview()" />
+                </div>
+              </div>
+
+              <div class="grid-3">
+                <div class="form-item">
+                  <label>Container Size</label>
+                  <select id="rs_in_ctnrSize" class="form-input" onchange="renderRsPreview()">
+                    <option value="20' GP" selected>20' GP</option>
+                    <option value="40' GP">40' GP</option>
+                    <option value="40' HQ">40' HQ</option>
+                  </select>
+                </div>
+                <div class="form-item">
+                  <label>Gross Weight</label>
+                  <input type="text" id="rs_in_gw" value="2,420 KGS" class="form-input" onkeyup="renderRsPreview()" />
+                </div>
+                <div class="form-item">
+                  <label>CBM</label>
+                  <input type="text" id="rs_in_cbm" value="12" class="form-input" onkeyup="renderRsPreview()" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel-card active" id="card-rs-items">
+            <div class="panel-header" onclick="toggleAccordion('card-rs-items')">2. BREAKDOWN LINE ITEMS</div>
+            <div class="panel-body">
+              <div id="list-rs-inputs"></div>
+              <button class="btn-add-item" onclick="addRsItem()">+ Add Custom Row</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="editor-foot">
+          <button class="btn-core btn-secondary" onclick="window.print()">Print</button>
+          <button class="btn-core" onclick="downloadVectorPDF('RecordSummary', 'paper-rs')">PDF File</button>
+          <button class="btn-core btn-success" onclick="exportRsExcel()">Excel Export</button>
+        </div>
+      </div>
+
+      <div class="preview-pane">
+        <div class="paper-sheet" id="paper-rs">
+          <div class="rs-masthead-wrapper">
+            <div class="rs-logo-container">
+              <img src="logo.png" alt="Company Logo" class="rs-logo-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+              <div class="rs-logo-fallback">GS</div>
+            </div>
+            <div class="rs-company-details">
+              <div class="rs-khmer-brand-record">ក្រុមហ៊ុន ហ្គ្រេតហ្វ៊ូល សឹលូសិន (ខេមបូឌា) ឯ.ក</div>
+              <div class="rs-eng-brand-record">GRATEFUL SOLUTIONS (CAMBODIA) CO., LTD.</div>
+              <div class="rs-vat-brand-record">លេខអត្តសញ្ញាណកម្ម អតប (VATTIN) : K008-902404873</div>
+            </div>
+          </div>
+          <div class="rs-doc-title">RECORD SUMMARY</div>
+
+          <div class="rs-box-grid">
+            <div class="box-row">
+              <div class="box-lbl">SHIPMENT:</div>
+              <div class="checkboxes">
+                <span>☑ <span id="rs_out_mode_lbl">IMPORT</span></span>
+                <span id="rs_out_trans_lbl">☑ SEA CY/CY</span>
+              </div>
+            </div>
+            <div class="box-row"><div class="box-lbl">INVOICE NO:</div><div class="box-val" id="rs_out_inv"></div></div>
+            <div class="box-row"><div class="box-lbl">FACTORY:</div><div class="box-val" id="rs_out_factory"></div></div>
+            <div class="box-row"><div class="box-lbl">DISBURSEMENT NO:</div><div class="box-val" id="rs_out_dis"></div></div>
+            <div class="box-row"><div class="box-lbl">PORT:</div><div class="box-val" id="rs_out_port"></div></div>
+            <div class="box-row"><div class="box-lbl">DEBIT NOTE NO:</div><div class="box-val" id="rs_out_dn"></div></div>
+            <div class="box-row"><div class="box-lbl">QUANTITY:</div><div class="box-val" id="rs_out_qty"></div></div>
+            <div class="box-row"><div class="box-lbl">CTNR NO:</div><div class="box-val" id="rs_out_ctnr"></div></div>
+            <div class="box-row"><div class="box-lbl">BL NO:</div><div class="box-val" id="rs_out_bl"></div></div>
+            <div class="box-row"><div class="box-lbl">GROSS WEIGHT:</div><div class="box-val" id="rs_out_gw"></div></div>
+            <div class="box-row"><div class="box-lbl">DECLARE NO:</div><div class="box-val" id="rs_out_declar"></div></div>
+            <div class="box-row"><div class="box-lbl">CBM:</div><div class="box-val" id="rs_out_cbm"></div></div>
+            <div class="box-row"><div class="box-lbl">DATE:</div><div class="box-val" id="rs_out_date"></div></div>
+            <div class="box-row"><div class="box-lbl">FORWARDER:</div><div class="box-val" id="rs_out_fwd"></div></div>
+          </div>
+
+          <table class="preview-table">
+            <thead>
+              <tr>
+                <th style="width:28px;">NO</th>
+                <th>DESCRIPTION</th>
+                <th style="width:45px;">Q'TY</th>
+                <th style="width:55px;">SHIP</th>
+                <th style="width:65px;">PRICE</th>
+                <th style="width:75px;">SHPT</th>
+                <th style="width:90px;">MARK</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-rs-preview"></tbody>
+            <tfoot>
+              <tr class="sum-row">
+                <td colspan="5" style="text-align:right; padding-right:8px;">TOTAL:</td>
+                <td style="text-align:right; padding-right:8px;" id="rs_out_total">0.00</td>
+                <td></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 4: TAX INVOICE (REDESIGNED) -->
+    <section id="view-tax" class="tab-view">
+      <div class="editor-pane">
+        <div class="editor-head">
+          <div>
+            <h2>Tax Invoice Engine</h2>
+            <p>Pulls live operational data, calculates KHR/USD VAT & builds the official tax invoice</p>
+          </div>
+          <button class="btn-core" style="height:32px; padding:4px 12px; font-size:11.5px;" onclick="syncTaxFromOpsRegistry()">
+            <span>🔄</span> Auto-Pull from Ops
+          </button>
+        </div>
+
+        <div class="editor-body">
+          <div class="panel-card active" id="card-tax-meta">
+            <div class="panel-header" onclick="toggleAccordion('card-tax-meta')">1. TAX INVOICE & CUSTOMER INFO</div>
+            <div class="panel-body">
+              <div class="form-item">
+                <label>Tax Invoice No</label>
+                <input type="text" id="tax_in_no" value="GS26-212" class="form-input form-input-amber" onkeyup="renderTaxPreview()" />
+              </div>
+              <div class="grid-2">
+                <div class="form-item">
+                  <label>Invoice Date</label>
+                  <input type="text" id="tax_in_date" value="02-JUN-2026" class="form-input" onkeyup="renderTaxPreview()" />
+                </div>
+                <div class="form-item">
+                  <label>Exchange Rate (USD ➔ KHR)</label>
+                  <input type="number" id="tax_in_exRate" value="4026" class="form-input" onkeyup="renderTaxPreview()" />
+                </div>
+              </div>
+              <div class="grid-2">
+                <div class="form-item">
+                  <label>Customer Name (Khmer)</label>
+                  <input type="text" id="tax_in_cust_km" style="font-family: var(--font-khmer-2) !important;" value="ជីន យ័ន សុី​​ ហ្គាមិន ឯ.ក" class="form-input" onkeyup="renderTaxPreview()" />
+                </div>
+                <div class="form-item">
+                  <label>Customer Name (English)</label>
+                  <input type="text" id="tax_in_cust_en" value="JIN YUAN XI GARMENT CO., LTD." class="form-input" onkeyup="renderTaxPreview()" />
+                </div>
+              </div>
+              <div class="form-item">
+                <label>Address</label>
+                <textarea id="tax_in_addr" class="form-input" style="min-height:40px; resize:none;" onkeyup="renderTaxPreview()">KAOH KNOR VILLAGE PREAEK ROKA COMMUNE KANDAL STUENG DISTRICT, KANDAL STUENG, KANDAL, CAMBODIA</textarea>
+              </div>
+              <div class="grid-3">
+                <div class="form-item">
+                  <label>Customer VATTIN</label>
+                  <input type="text" id="tax_in_vattin" value="L001-902501613" class="form-input" onkeyup="renderTaxPreview()" />
+                </div>
+                <div class="form-item">
+                  <label>POL</label>
+                  <input type="text" id="tax_in_pol" value="BAVET CEO" class="form-input" onkeyup="renderTaxPreview()" />
+                </div>
+                <div class="form-item">
+                  <label>POD</label>
+                  <input type="text" id="tax_in_pod" value="USA" class="form-input" onkeyup="renderTaxPreview()" />
+                </div>
+              </div>
+              <div class="grid-3">
+                <div class="form-item">
+                  <label>Container No</label>
+                  <input type="text" id="tax_in_ctnr" value="XYLU8161604" class="form-input" onkeyup="renderTaxPreview()" />
+                </div>
+                <div class="form-item">
+                  <label>Volume</label>
+                  <input type="text" id="tax_in_vol" value="1X40'HC" class="form-input" onkeyup="renderTaxPreview()" />
+                </div>
+                <div class="form-item">
+                  <label>Gross Weight</label>
+                  <input type="text" id="tax_in_gw" value="13,219.60 KGS" class="form-input" onkeyup="renderTaxPreview()" />
+                </div>
+              </div>
+              <div class="grid-3">
+                <div class="form-item">
+                  <label>Shipper</label>
+                  <input type="text" id="tax_in_shipper" value="JR APPAREL CO., LTD." class="form-input" onkeyup="renderTaxPreview()" />
+                </div>
+                <div class="form-item">
+                  <label>Consignee</label>
+                  <input type="text" id="tax_in_consignee" value="CHAPTERONE SPORTSWEAR" class="form-input" onkeyup="renderTaxPreview()" />
+                </div>
+                <div class="form-item">
+                  <label>HBL</label>
+                  <input type="text" id="tax_in_hbl" value="NON" class="form-input" onkeyup="renderTaxPreview()" />
+                </div>
+              </div>
+              <div class="form-item">
+                <label>PKGS</label>
+                <input type="text" id="tax_in_pkgs" value="978 CTNS" class="form-input" onkeyup="renderTaxPreview()" />
+              </div>
+            </div>
+          </div>
+
+          <div class="panel-card active" id="card-tax-items">
+            <div class="panel-header" onclick="toggleAccordion('card-tax-items')">2. TAX INVOICE ITEM (VAT 10%)</div>
+            <div class="panel-body">
+              <div class="grid-3">
+                <input type="text" id="tax_item_desc" class="form-input" value="កំរៃសេវាបំពេញបែបបទនាំចេញ / EXPORT PROCESSING FEE" placeholder="Description" onkeyup="renderTaxPreview()" />
+                <input type="text" id="tax_item_unit" class="form-input" value="SHIP" placeholder="Unit" onkeyup="renderTaxPreview()" />
+                <input type="number" id="tax_item_price" class="form-input" value="185.00" placeholder="Price (USD)" onkeyup="renderTaxPreview()" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="editor-foot">
+          <button class="btn-core btn-secondary" onclick="window.print()">Print</button>
+          <button class="btn-core" onclick="downloadVectorPDF('TaxInvoice', 'paper-tax')">Tax Invoice PDF</button>
+          <button class="btn-core btn-success" onclick="exportTaxExcel()">Excel Export</button>
+        </div>
+      </div>
+
+      <div class="preview-pane">
+        <div class="paper-sheet" id="paper-tax">
+          <div class="invoice-masthead">
+            <div class="invoice-logo-left">
+              <img src="logo.png" alt="GS Logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+              <div class="rs-logo-fallback">GS</div>
+            </div>
+            <div class="invoice-company-name-km">ក្រុមហ៊ុន ហ្គ្រេតហ្វ៊ូល សឹលូសិន (ខេមបូឌា) ឯ.ក</div>
+            <div class="invoice-company-name-en">GRATEFUL SOLUTIONS (CAMBODIA) CO., LTD.</div>
+            <div class="invoice-vattin">លេខអត្តសញ្ញាណកម្ម អតប (VATTIN) : K008-902404873</div>
+            <div class="invoice-address-bar">
+              អាស័យដ្ឋាន : # 7E0 ផ្លូវបេតុង ក្រុម 7 ភូមិទួលសង្កែ សង្កាត់ទួលសង្កែទី2 ខណ្ឌឬស្សីកែវ រាជធានីភ្នំពេញ<br />
+              លេខទូរស័ព្ទ: 098 484 414
+            </div>
+          </div>
+
+          <div class="invoice-title-block">
+            <div class="invoice-title-km">វិក្កយបត្រអាករ</div>
+            <div class="invoice-title-en">TAX INVOICE</div>
+          </div>
+
+          <div class="invoice-meta-grid">
+            <div>
+              <div>
+                <span class="lbl-km-muol" style="font-family: Khmer OS Muol Light;">ឈ្មោះអតិថិជន</span>
+                <span style="font-weight: 600; font-size: 10pt;"> / Customer:</span>
+                <span id="tax_out_cust_km" class="cust-name-km" style="font-family: Khmer OS Muol Light;">ជីន យ័ន សុី​​ ហ្គាមិន ឯ.ក</span>
+              </div>
+              <div id="tax_out_cust_en" class="cust-name-en">JIN YUAN XI GARMENT CO., LTD.</div>
+              <div><span class="meta-lbl-km">អាស័យដ្ឋាន / Address:</span> <span id="tax_out_addr" class="meta-val"></span></div>
+              <div style="margin-top: 4px;"><span class="meta-lbl-km">លេខ អតប (VATTIN) :</span> <span id="tax_out_vattin" class="meta-val"></span></div>
+              <div style="margin-top: 4px; font-size: 9pt;">SHIPPER: <span id="tax_out_shipper">JR APPAREL CO., LTD.</span></div>
+              <div style="margin-top: 4px; font-size: 9pt;">CONSIGNEE: <span id="tax_out_consignee">CHAPTERONE SPORTSWEAR</span></div>
+              <div style="margin-top: 4px; font-size: 9pt;">HBL: <span id="tax_out_hbl">NON</span></div>
+              <div style="margin-top: 4px; font-size: 9pt;">PKGS: <span id="tax_out_pkgs">978 CTNS</span></div>
+            </div>
+            <div class="invoice-meta-right">
+              <div><span class="meta-lbl-km">លេខវិក្កយបត្រ / Invoice No:</span> <span id="tax_out_no" class="meta-val"></span></div>
+              <div><span class="meta-lbl-km">កាលបរិច្ឆេទវិក្កយបត្រ / Invoice Date:</span> <span id="tax_out_date" class="meta-val"></span></div>
+              <div style="margin-top: 4px; font-size: 9pt;">GROSS WEIGHT:<span id="tax_out_gw"></span></div>
+              <div style="margin-top: 4px; font-size: 9pt;">VOLUME: <span id="tax_out_vol"></span></div>
+              <div style="margin-top: 4px; font-size: 9pt;">Container No: <span id="tax_out_ctnr"></span></div>
+              <div style="margin-top: 4px; font-size: 9pt;">POL: <span id="tax_out_pol"></span></div>
+              <div style="margin-top: 4px; font-size: 9pt;">POD: <span id="tax_out_pod"></span></div>
+              <div style="margin-top: 4px; font-size: 9pt;">Exchange Rate: 1USD = <span id="tax_out_rate">4026</span> KHR</div>
+            </div>
+          </div>
+
+          <table class="invoice-clean-table">
+            <thead>
+              <tr>
+                <th style="width: 32px;">ល.រ<br />No</th>
+                <th>បរិយាយមុខទំនិញ<br />Description</th>
+                <th style="width: 55px;">បរិមាណ<br />Quantity</th>
+                <th style="width: 48px;">ឯកតា<br />Unit</th>
+                <th style="width: 70px;">ថ្លៃឯកតា<br />Unit Price</th>
+                <th style="width: 75px;">សរុប<br />Sub Total</th>
+                <th style="width: 65px;">អាករ 10%<br />VAT (10%)</th>
+                <th style="width: 75px;">ថ្លៃទំនិញ<br />Amount</th>
+              </tr>
+            </thead>
+<tbody>
+  <tr>
+    <td style="text-align: center;">1</td>
+    <td id="tax_out_item_desc">កំរៃសេវាបំពេញបែបបទនាំចេញ / EXPORT PROCESSING FEE</td>
+    <td style="text-align: center;">1.00</td>
+    <td style="text-align: center;" id="tax_out_item_unit">SHIP</td>
+    <td style="text-align: center;" id="tax_out_item_price">185.00</td>
+    <td style="text-align: center;" id="tax_out_item_sub">185.00</td>
+    <td style="text-align: center;" id="tax_out_item_vat">18.50</td>
+    <td style="text-align: center; font-weight: 700;" id="tax_out_item_amt">203.50</td>
+  </tr>
+</tbody>
+          </table>
+
+  <table class="invoice-totals-wrapper">
+  <colgroup>
+    <col style="width: 32px;">
+    <col>
+    <col style="width: 55px;">
+    <col style="width: 48px;">
+    <col style="width: 70px;">
+    <col style="width: 75px;">
+    <col style="width: 65px;">
+    <col style="width: 75px;">
+  </colgroup>
+  <tbody>
+    <tr>
+      <td colspan="3" style="text-align: right; padding-right: 14px;">សរុប SUB TOTAL</td>
+      <td style="text-align: center;">KHR</td>
+      <td></td>
+      <td style="text-align: center;" id="tax_out_khr_sub">746,290</td>
+      <td style="text-align: center;">USD</td>
+      <td style="text-align: center;" id="tax_out_usd_sub">185.00</td>
+    </tr>
+    <tr>
+      <td colspan="3" style="text-align: right; padding-right: 14px;">អាករលើតម្លៃបន្ថែម (VAT 10%)</td>
+      <td style="text-align: center;">KHR</td>
+      <td></td>
+      <td style="text-align: center;" id="tax_out_khr_vat">74,629</td>
+      <td style="text-align: center;">USD</td>
+      <td style="text-align: center;" id="tax_out_usd_vat">18.50</td>
+    </tr>
+    <tr style="font-weight: 500;">
+      <td colspan="3" style="text-align: right; padding-right: 14px;">សរុបរួម GRAND TOTAL</td>
+      <td style="text-align: center;">KHR</td>
+      <td></td>
+      <td style="text-align: center; font-weight: 800;" id="tax_out_khr_grand">820,919</td>
+      <td style="text-align: center;">USD</td>
+      <td style="text-align: center; font-weight: 800;" id="tax_out_usd_grand">203.50</td>
+    </tr>
+  </tbody>
+</table>
+
+          <div class="invoice-payment-note">
+            Note: You can make payment by cross cheque to:<br />
+            GRATEFUL SOLUTIONS (CAMBODIA) CO.,LTD.<br />
+            or Deposit Cash/Cheque payment to bank as below:<br />
+            KB BRASAC BANK PLC<br />
+            AC/NAME: GRATEFUL SOLUTIONS (CAMBODIA) CO.,LTD.<br />
+            AC/NO: 033 754 230 001
+          </div>
+
+<div class="invoice-sign-section">
+  <div class="invoice-sign-col">
+    <div class="invoice-sign-rule"></div>
+    <div  class="invoice-copy-legend-sign" style="text-align: left; margin-bottom: 4px; font-size: 10pt;">ហត្ថលេខា និង ឈ្មោះអ្នកទិញ</div>
+    <div class="invoice-copy-legend">
+      សម្គាល់ច្បាប់ដើមសម្រាប់អ្នកទិញច្បាប់ចម្លងសម្រាប់អ្នកលក់<br />
+      Note : Original invoice for customer, copies invoice for seller
+    </div>
+  </div>
+  <div class="invoice-sign-col">
+    <div class="invoice-sign-rule"></div>
+              <div class="invoice-copy-legend-sign-right" style = "font-size: 10pt !important;">ហត្ថលេខា និង ឈ្មោះអ្នកលក់</div>
+  </div>
+</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 5: DISBURSEMENT (REDESIGNED) -->
+    <section id="view-dis" class="tab-view">
+      <div class="editor-pane">
+        <div class="editor-head">
+          <div>
+            <h2>Disbursement Engine</h2>
+            <p>Builds the official disbursement voucher (VAT 0%)</p>
+          </div>
+          <button class="btn-core" style="height:32px; padding:4px 12px; font-size:11.5px;" onclick="syncDisFromTax()">
+            <span>🔄</span> Copy from Tax Invoice
+          </button>
+        </div>
+
+        <div class="editor-body">
+          <div class="panel-card active" id="card-dis-meta">
+            <div class="panel-header" onclick="toggleAccordion('card-dis-meta')">1. DISBURSEMENT & CUSTOMER INFO</div>
+            <div class="panel-body">
+              <div class="form-item">
+                <label>Disbursement No</label>
+                <input type="text" id="dis_in_no" value="DIS232" class="form-input form-input-amber" onkeyup="renderDisPreview()" />
+              </div>
+              <div class="grid-2">
+                <div class="form-item">
+                  <label>Disbursement Date</label>
+                  <input type="text" id="dis_in_date" value="02-JUN-2026" class="form-input" onkeyup="renderDisPreview()" />
+                </div>
+                <div class="form-item">
+                  <label>Exchange Rate (USD ➔ KHR)</label>
+                  <input type="number" id="dis_in_exRate" value="4026" class="form-input" onkeyup="renderDisPreview()" />
+                </div>
+              </div>
+              <div class="grid-2">
+                <div class="form-item">
+                  <label>Customer Name (Khmer)</label>
+                  <input type="text" id="dis_in_cust_km" style="font-family: var(--font-khmer-2) !important;" value="ជីន យ័ន សុី​​ ហ្គាមិន ឯ.ក" class="form-input" onkeyup="renderDisPreview()" />
+                </div>
+                <div class="form-item">
+                  <label>Customer Name (English)</label>
+                  <input type="text" id="dis_in_cust_en" value="JIN YUAN XI GARMENT CO., LTD." class="form-input" onkeyup="renderDisPreview()" />
+                </div>
+              </div>
+              <div class="form-item">
+                <label>Address</label>
+                <textarea id="dis_in_addr" class="form-input" style="min-height:40px; resize:none;" onkeyup="renderDisPreview()">KAOH KNOR VILLAGE PREAEK ROKA COMMUNE KANDAL STUENG DISTRICT, KANDAL STUENG, KANDAL, CAMBODIA</textarea>
+              </div>
+              <div class="grid-3">
+                <div class="form-item">
+                  <label>Customer VATTIN</label>
+                  <input type="text" id="dis_in_vattin" value="L001-902501613" class="form-input" onkeyup="renderDisPreview()" />
+                </div>
+                <div class="form-item">
+                  <label>POL</label>
+                  <input type="text" id="dis_in_pol" value="BAVET CEO" class="form-input" onkeyup="renderDisPreview()" />
+                </div>
+                <div class="form-item">
+                  <label>POD</label>
+                  <input type="text" id="dis_in_pod" value="USA" class="form-input" onkeyup="renderDisPreview()" />
+                </div>
+              </div>
+              <div class="grid-3">
+                <div class="form-item">
+                  <label>Container No</label>
+                  <input type="text" id="dis_in_ctnr" value="XYLU8161604" class="form-input" onkeyup="renderDisPreview()" />
+                </div>
+                <div class="form-item">
+                  <label>Volume</label>
+                  <input type="text" id="dis_in_vol" value="1X40'HC" class="form-input" onkeyup="renderDisPreview()" />
+                </div>
+                <div class="form-item">
+                  <label>Gross Weight</label>
+                  <input type="text" id="dis_in_gw" value="13,219.60 KGS" class="form-input" onkeyup="renderDisPreview()" />
+                </div>
+              </div>
+              <div class="grid-3">
+                <div class="form-item">
+                  <label>Shipper</label>
+                  <input type="text" id="dis_in_shipper" value="JR APPAREL CO., LTD." class="form-input" onkeyup="renderDisPreview()" />
+                </div>
+                <div class="form-item">
+                  <label>Consignee</label>
+                  <input type="text" id="dis_in_consignee" value="CHAPTERONE SPORTSWEAR" class="form-input" onkeyup="renderDisPreview()" />
+                </div>
+                <div class="form-item">
+                  <label>HBL</label>
+                  <input type="text" id="dis_in_hbl" value="NON" class="form-input" onkeyup="renderDisPreview()" />
+                </div>
+              </div>
+              <div class="form-item">
+                <label>PKGS</label>
+                <input type="text" id="dis_in_pkgs" value="978 CTNS" class="form-input" onkeyup="renderDisPreview()" />
+              </div>
+            </div>
+          </div>
+
+          <div class="panel-card active" id="card-dis-items">
+            <div class="panel-header" onclick="toggleAccordion('card-dis-items')">2. DISBURSEMENT ITEM (VAT 0%)</div>
+            <div class="panel-body">
+              <div class="grid-3">
+                <input type="text" id="dis_item_desc" class="form-input" value="CUSTOM PROCESSING FEE" placeholder="Description" onkeyup="renderDisPreview()" />
+                <input type="text" id="dis_item_unit" class="form-input" value="40H" placeholder="Unit" onkeyup="renderDisPreview()" />
+                <input type="number" id="dis_item_price" class="form-input" value="21.25" placeholder="Price (USD)" onkeyup="renderDisPreview()" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="editor-foot">
+          <button class="btn-core btn-secondary" onclick="window.print()">Print</button>
+          <button class="btn-core" onclick="downloadVectorPDF('Disbursement', 'paper-dis')">Disbursement PDF</button>
+          <button class="btn-core btn-success" onclick="exportDisExcel()">Excel Export</button>
+        </div>
+      </div>
+
+      <div class="preview-pane">
+        <div class="paper-sheet" id="paper-dis">
+          <div class="invoice-masthead">
+            <div class="invoice-logo-left">
+              <img src="logo.png" alt="GS Logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+              <div class="rs-logo-fallback">GS</div>
+            </div>
+            <div class="invoice-company-name-km">ក្រុមហ៊ុន ហ្គ្រេតហ្វ៊ូល សឹលូសិន (ខេមបូឌា) ឯ.ក</div>
+            <div class="invoice-company-name-en">GRATEFUL SOLUTIONS (CAMBODIA) CO., LTD.</div>
+            <div class="invoice-vattin">លេខអត្តសញ្ញាណកម្ម អតប (VATTIN) : K008-902404873</div>
+            <div class="invoice-address-bar">
+              អាស័យដ្ឋាន : # 7E0 ផ្លូវបេតុង ក្រុម 7 ភូមិទួលសង្កែ សង្កាត់ទួលសង្កែទី2 ខណ្ឌឬស្សីកែវ រាជធានីភ្នំពេញ<br />
+              លេខទូរស័ព្ទ: 098 484 414
+            </div>
+          </div>
+
+          <div class="invoice-title-block">
+            <div class="invoice-title-km">វិក្កយបត្របង់ជំនួស</div>
+            <div class="invoice-title-en">DISBURSEMENT</div>
+          </div>
+
+          <div class="invoice-meta-grid">
+            <div>
+              <div>
+                <span class="lbl-km-muol" style="font-family: Khmer OS Muol Light;">ឈ្មោះអតិថិជន</span>
+                <span style="font-weight: 600; font-size: 10pt;"> / Customer:</span>
+                <span id="dis_out_cust_km" class="cust-name-km" style="font-family: Khmer OS Muol Light;">ជីន យ័ន សុី​​ ហ្គាមិន ឯ.ក</span>
+              </div>
+              <div id="dis_out_cust_en" class="cust-name-en">JIN YUAN XI GARMENT CO., LTD.</div>
+              <div><span class="meta-lbl-km">អាស័យដ្ឋាន / Address:</span> <span id="dis_out_addr" class="meta-val"></span></div>
+              <div style="margin-top: 4px;"><span class="meta-lbl-km">លេខ អតប (VATTIN) :</span> <span id="dis_out_vattin" class="meta-val"></span></div>
+              <div style="margin-top: 4px; font-size: 9pt;">SHIPPER: <span id="dis_out_shipper">JR APPAREL CO., LTD.</span></div>
+              <div style="margin-top: 4px; font-size: 9pt;">CONSIGNEE: <span id="dis_out_consignee">CHAPTERONE SPORTSWEAR</span></div>
+              <div style="margin-top: 4px; font-size: 9pt;">HBL: <span id="dis_out_hbl">NON</span></div>
+              <div style="margin-top: 4px; font-size: 9pt;">PKGS: <span id="dis_out_pkgs">978 CTNS</span></div>
+            </div>
+            <div class="invoice-meta-right">
+              <div><span class="meta-lbl-km">លេខផ្តល់ប័ត្រ / DIS-No:</span> <span id="dis_out_no" class="meta-val"></span></div>
+              <div><span class="meta-lbl-km">ការបញ្ជូនផ្តល់ប័ត្រ / DIS-Date:</span> <span id="dis_out_date" class="meta-val"></span></div>
+              <div style="margin-top: 4px; font-size: 9pt;">GROSS WEIGHT: <span id="dis_out_gw"></span></div>
+              <div style="margin-top: 4px; font-size: 9pt;">VOLUME: <span id="dis_out_vol"></span></div>
+              <div style="margin-top: 4px; font-size: 9pt;">Container No: <span id="dis_out_ctnr"></span></div>
+              <div style="margin-top: 4px; font-size: 9pt;">POL: <span id="dis_out_pol"></span></div>
+              <div style="margin-top: 4px; font-size: 9pt;">POD: <span id="dis_out_pod"></span></div>
+              <div style="margin-top: 4px; font-size: 9pt;">Exchange Rate: 1USD = <span id="dis_out_rate">4026</span> KHR</div>
+            </div>
+          </div>
+
+          <table class="invoice-clean-table">
+            <thead>
+              <tr>
+                <th style="width: 32px;">ល.រ<br />No</th>
+                <th>បរិយាយមុខទំនិញ<br />Description</th>
+                <th style="width: 55px;">បរិមាណ<br />Quantity</th>
+                <th style="width: 48px;">ឯកតា<br />Unit</th>
+                <th style="width: 70px;">ថ្លៃឯកតា<br />Unit Price</th>
+                <th style="width: 75px;">សរុប<br />Sub Total</th>
+                <th style="width: 65px;">អាករ (0%)<br />VAT (0%)</th>
+                <th style="width: 75px;">ថ្លៃទំនិញ<br />Amount</th>
+              </tr>
+            </thead>
+<tbody>
+  <tr>
+    <td style="text-align: center;">1</td>
+    <td id="dis_out_item_desc">CUSTOM PROCESSING FEE</td>
+    <td style="text-align: center;">1.00</td>
+    <td style="text-align: center;" id="dis_out_item_unit">40H</td>
+    <td style="text-align: center;" id="dis_out_item_price">21.25</td>
+    <td style="text-align: center;" id="dis_out_item_sub">21.25</td>
+    <td style="text-align: center;" id="dis_out_item_vat">-</td>
+    <td style="text-align: center; font-weight: 700;" id="dis_out_item_amt">21.25</td>
+  </tr>
+</tbody>
+          </table>
+
+   <table class="invoice-totals-wrapper">
+  <colgroup>
+    <col style="width: 32px;">
+    <col>
+    <col style="width: 55px;">
+    <col style="width: 48px;">
+    <col style="width: 70px;">
+    <col style="width: 75px;">
+    <col style="width: 65px;">
+    <col style="width: 75px;">
+  </colgroup>
+  <tbody>
+    <tr>
+      <td colspan="6" style="text-align: right; padding-right: 14px;">សរុប SUB TOTAL</td>
+      <td style="text-align: center;">USD</td>
+      <td style="text-align: center;" id="dis_out_usd_sub">21.25</td>
+    </tr>
+    <tr>
+      <td colspan="6" style="text-align: right; padding-right: 14px;">អាករលើតម្លៃបន្ថែម (VAT 0%)</td>
+      <td style="text-align: center;">USD</td>
+      <td style="text-align: center;" id="dis_out_usd_vat">-</td>
+    </tr>
+    <tr style="font-weight: 500;">
+      <td colspan="6" style="text-align: right; padding-right: 14px;">សរុបរួម GRAND TOTAL</td>
+      <td style="text-align: center;">USD</td>
+      <td style="text-align: center; font-weight: 800;" id="dis_out_usd_grand">21.25</td>
+    </tr>
+  </tbody>
+</table>
+
+          <div class="invoice-payment-note">
+            Note: You can make payment by cross cheque to:<br />
+            GRATEFUL SOLUTIONS (CAMBODIA) CO.,LTD.<br />
+            or Deposit Cash/Cheque payment to bank as below:<br />
+            KB BRASAC BANK PLC<br />
+            AC/NAME: GRATEFUL SOLUTIONS (CAMBODIA) CO.,LTD.<br />
+            AC/NO: 033 754 230 001
+          </div>
+
+          <div class="invoice-sign-section">
+            <div class="invoice-sign-col">
+              <div class="invoice-sign-rule"></div>
+              <div class="invoice-copy-legend-sign" style="text-align: left; margin-bottom: 4px; font-size: 10pt;">ហត្ថលេខា និង ឈ្មោះអ្នកទិញ</div>
+              <div class="invoice-copy-legend">
+                សម្គាល់ច្បាប់ដើមសម្រាប់អ្នកទិញច្បាប់ចម្លងសម្រាប់អ្នកលក់<br />
+                Note : Original invoice for customer, copies invoice for seller
+              </div>
+            </div>
+            <div class="invoice-sign-col">
+              <div class="invoice-sign-rule"></div>
+              <div class="invoice-copy-legend-sign-right" style = "font-size: 10pt !important;">ហត្ថលេខា និង ឈ្មោះអ្នកលក់</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 6: DEBIT NOTE -->
+    <section id="view-dn" class="tab-view">
+      <div class="editor-pane">
+        <div class="editor-head">
+          <div>
+            <h2>Debit Note Engine</h2>
+            <p>Populates and calculates operational items directly from Record Summary</p>
+          </div>
+          <button class="btn-core" style="height:32px; padding:4px 12px; font-size:11.5px;" onclick="syncDnFromRecordSummary()">
+            <span>🔄</span> Pull from Record Summary
+          </button>
+        </div>
+
+        <div class="editor-body">
+          <div class="panel-card active" id="card-dn-meta">
+            <div class="panel-header" onclick="toggleAccordion('card-dn-meta')">1. DEBIT NOTE HEADER</div>
+            <div class="panel-body">
+              <div class="grid-2">
+                <div class="form-item">
+                  <label>Debit Note No</label>
+                  <input type="text" id="dn_in_no" value="JR2606001" class="form-input form-input-amber" onkeyup="renderDnPreview()" />
+                </div>
+                <div class="form-item">
+                  <label>Date</label>
+                  <input type="text" id="dn_in_date" value="2-Jun-2026" class="form-input" onkeyup="renderDnPreview()" />
+                </div>
+              </div>
+              <div class="form-item">
+                <label>Customer</label>
+                <input type="text" id="dn_in_cust" value="JR APPAREL CO.,LTD" class="form-input" onkeyup="renderDnPreview()" />
+              </div>
+              <div class="form-item">
+                <label>Address</label>
+                <textarea id="dn_in_addr" class="form-input" style="min-height:40px; resize:none;" onkeyup="renderDnPreview()">KAOH KNOR VILLAGE PREAEK ROKA COMMUNE KANDAL STUENG DISTRICT, KANDAL, CAMBODIA</textarea>
+              </div>
+              <div class="grid-3">
+                <div class="form-item">
+                  <label>HBL No</label>
+                  <input type="text" id="dn_in_hbl" value="NON" class="form-input" onkeyup="renderDnPreview()" />
+                </div>
+                <div class="form-item">
+                  <label>POL</label>
+                  <input type="text" id="dn_in_pol" value="BAVET CEO" class="form-input" onkeyup="renderDnPreview()" />
+                </div>
+                <div class="form-item">
+                  <label>POD</label>
+                  <input type="text" id="dn_in_pod" value="USA" class="form-input" onkeyup="renderDnPreview()" />
+                </div>
+              </div>
+              <div class="grid-3">
+                <div class="form-item">
+                  <label>Container No</label>
+                  <input type="text" id="dn_in_ctnr" value="XYLU8161604" class="form-input" onkeyup="renderDnPreview()" />
+                </div>
+                <div class="form-item">
+                  <label>Volume</label>
+                  <input type="text" id="dn_in_vol" value="1X40'HC" class="form-input" onkeyup="renderDnPreview()" />
+                </div>
+                <div class="form-item">
+                  <label>Gross Weight</label>
+                  <input type="text" id="dn_in_gw" value="13,219.60 KGS" class="form-input" onkeyup="renderDnPreview()" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel-card active" id="card-dn-items">
+            <div class="panel-header" onclick="toggleAccordion('card-dn-items')">2. DEBIT NOTE LINE ITEMS</div>
+            <div class="panel-body">
+              <div id="list-dn-inputs"></div>
+              <button class="btn-add-item" onclick="addDnItem()">+ Add Item</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="editor-foot">
+          <button class="btn-core btn-secondary" onclick="window.print()">Print</button>
+          <button class="btn-core" onclick="downloadVectorPDF('DebitNote', 'paper-dn')">PDF File</button>
+          <button class="btn-core btn-success" onclick="exportDnExcel()">Excel Export</button>
+        </div>
+      </div>
+
+      <div class="preview-pane">
+        <div class="paper-sheet" id="paper-dn" style="font-family: Georgia, 'Times New Roman', Times, serif;">
+          <div class="doc-headline" style="margin-bottom:16px; font-size:14pt;">DEBIT NOTE</div>
+
+          <div style="display:grid; grid-template-columns: 1.3fr 1fr; gap:2px 14px; font-size:9pt; margin-bottom:12px; line-height:1.6;">
+            <div>CUSTOMER: <span id="dn_out_cust"></span></div>
+            <div style="grid-row: span 3;">DN NO <span id="dn_out_no" style="font-weight:700; margin-left:35px;"></span></div>
+            <div>ADDRESS: <span id="dn_out_addr"></span></div>
+            <div>&nbsp;</div>
+            <div>DATE <span id="dn_out_date" style="margin-left:52px;"></span></div>
+            <div>&nbsp;</div>
+            <div style="margin-top:6px;">HBL NO : <span id="dn_out_hbl"></span></div>
+            <div style="margin-top:6px;">POL: <span id="dn_out_pol"></span></div>
+            <div>G.W : <span id="dn_out_gw"></span></div>
+            <div>POD: <span id="dn_out_pod"></span></div>
+            <div>VOLUME: : <span id="dn_out_vol"></span></div>
+            <div>PKGS: <span>978 CTNS</span></div>
+            <div>CTNR No: <span id="dn_out_ctnr"></span></div>
+            <div>&nbsp;</div>
+            <div style="margin-top:6px;">Shipper : <span id="dn_out_shipper">JR APPAREL CO., LTD.</span></div>
+            <div>&nbsp;</div>
+            <div>Consignee : <span>CHAPTERONE SPORTSWEAR</span></div>
+            <div>&nbsp;</div>
+          </div>
+
+          <table class="preview-table" style="font-size:9pt;">
+            <thead>
+              <tr>
+                <th style="width:28px;">NO</th>
+                <th>DESCRIPTION</th>
+                <th style="width:45px;">Q'TY</th>
+                <th style="width:55px;">U/M</th>
+                <th style="width:75px;">PRICE</th>
+                <th style="width:85px;">TOTAL</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-dn-preview"></tbody>
+            <tfoot>
+              <tr class="sum-row">
+                <td colspan="4" style="text-align:right; padding-right:8px;">GRAND TOTAL:</td>
+                <td style="text-align:center;">USD</td>
+                <td style="text-align:right; padding-right:8px;" id="dn_out_total">0.00</td>
+              </tr>
+            </tfoot>
+          </table>
+
+          <div style="display:flex; justify-content:space-between; margin-top:60px; font-size:9pt; font-weight:700;">
+            <div style="text-decoration: underline;">Thank you for your supporting</div>
+            <div style="text-decoration: underline;">AUTHORIZED SIGNATURE</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    const PORTS_DIRECTORY = [
+      { no: "1", code: "PNH01", name: "KTI AIR PORT" },
+      { no: "4", code: "PNH04", name: "PNH PORT" },
+      { no: "11", code: "SHV11", name: "SHV PORT" },
+      { no: "11+", code: "SVR11", name: "BAVET CEO" },
+      { no: "12", code: "SVR12", name: "PREY VOR CEO" },
+      { no: "16", code: "PNH16", name: "DRYPORT ROYAL RAILWAY" },
+      { no: "19", code: "PNH19", name: "TEC SRUN DRYPORT" },
+      { no: "21", code: "PNH21", name: "OLAIR DRY PORT" },
+      { no: "23", code: "PNH23", name: "UNION DRY PORT" },
+      { no: "25", code: "PNH25", name: "HLH DRY PORT" }
+    ];
+
+    const OPERATIONS_REGISTRY = {
+      "I 122050": {
+        declareNo: "I 122050",
+        declareDate: "2026-08-21",
+        client: "JR APPAREL",
+        portQuery: "SHV",
+        invNo: "GS26-212",
+        disNo: "DIS232",
+        dnNo: "JR2606001",
+        clearFee: 982.45,
+        thc: 355.00,
+        otherPay: 0.00,
+        invRevenue: 185.00,
+        disbursementTotal: 21.25,
+        dnTotal: 1334.00,
+        cheaStatus: "PAID",
+        mark: "Use 40H Truck"
+      },
+      "I 95925": {
+        declareNo: "I 95925",
+        declareDate: "2026-07-01",
+        client: "SPORTLINE",
+        portQuery: "SHV11",
+        invNo: "GS26-259",
+        disNo: "DIS291",
+        dnNo: "SAK2607001",
+        clearFee: 285.53,
+        thc: 0.00,
+        otherPay: 0.00,
+        invRevenue: 150.00,
+        disbursementTotal: 190.53,
+        dnTotal: 347.11,
+        cheaStatus: "PAID",
+        mark: ""
+      }
+    };
+
+    const TEMPLATE_CREDIT_NOTE = [
+      { desc: "IMPORT-CLEARANCE", qty: 1, unit: "20'", price: 115.00, mark: "" },
+      { desc: "EXTRA IMPORT CLEARANCE ( GENERATOR)", qty: 1, unit: "SET", price: 50.00, mark: "" },
+      { desc: "TRUCKING", qty: 1, unit: "20'", price: 280.00, mark: "" },
+      { desc: "CUSTOMS ACC", qty: 1, unit: "SHIP", price: 10.00, mark: "" },
+      { desc: "CUSTOM PROCESSING FEE", qty: 1, unit: "SHIP", price: 18.75, mark: "" },
+      { desc: "LOLO", qty: 1, unit: "20'", price: 62.70, mark: "" }
+    ];
+
+    const TEMPLATE_IMPORT_RS = [
+      { desc: "IMPORT PROCESSING FEE", qty: 1, unit: "20GP", price: 180.00, subtotal: 198.00, mark: "VAT 10%" },
+      { desc: "THC FEE", qty: 1, unit: "20GP", price: 355.00, subtotal: 355.00, mark: "Receipt" },
+      { desc: "CUSTOMS PROCESSING FEE", qty: 1, unit: "20GP", price: 18.75, subtotal: 18.75, mark: "Receipt" },
+      { desc: "TRUCKING FEE", qty: 1, unit: "20GP", price: 360.00, subtotal: 360.00, mark: "Use 40H Truck" },
+      { desc: "LOLO AT PORT", qty: 1, unit: "20GP", price: 62.70, subtotal: 62.70, mark: "Receipt" }
+    ];
+
+    const TEMPLATE_DEBIT_NOTE = [
+      { desc: "TRUCKING FEE", qty: 1, unit: "40H", price: 420.00 },
+      { desc: "HANDLING FEE", qty: 1, unit: "40H", price: 35.00 },
+      { desc: "DOCUMENT FEE", qty: 1, unit: "SET", price: 25.00 },
+      { desc: "SERVICE TAXATION", qty: 1, unit: "SHIP", price: 20.00 },
+      { desc: "PETROL ALLOWANCE FEE", qty: 1, unit: "TIME", price: 69.00 },
+      { desc: "FUEL SURCHARGE", qty: 1, unit: "40H", price: 40.00 },
+      { desc: "INCREASE TRUCKING FEE(65%)", qty: 1, unit: "TRUCK", price: 273.00 },
+      { desc: "LOLO AND GATE FEE", qty: 1, unit: "40H", price: 45.00 },
+      { desc: "APPLY CO FOR INV: JRA26025", qty: 1, unit: "INV", price: 40.00 }
+    ];
+
+    let stateCreditNote = JSON.parse(JSON.stringify(TEMPLATE_CREDIT_NOTE));
+    let stateRecordSummary = JSON.parse(JSON.stringify(TEMPLATE_IMPORT_RS));
+    let stateDebitNote = JSON.parse(JSON.stringify(TEMPLATE_DEBIT_NOTE));
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.nav-tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-view').forEach(view => view.classList.remove('active'));
+
+      const tabMap = { 'acc': 1, 'cn': 2, 'rs': 3, 'tax': 4, 'dis': 5, 'dn': 6 };
+      document.querySelector(`.nav-tab-btn:nth-child(${tabMap[tabId]})`).classList.add('active');
+      document.getElementById(`view-${tabId}`).classList.add('active');
+    }
+
+    function toggleAccordion(cardId) {
+      document.getElementById(cardId).classList.toggle('active');
+    }
+
+    function formatNumber(val) {
+      return (parseFloat(val) || 0).toFixed(2);
+    }
+
+    function formatKHR(val) {
+      return Math.round(parseFloat(val) || 0).toLocaleString('en-US');
+    }
+
+    function resolvePortEntity(portTerm) {
+      if (!portTerm) return { no: "-", code: "-", name: "-" };
+      const term = portTerm.trim().toUpperCase();
+      const match = PORTS_DIRECTORY.find(p => 
+        p.code.toUpperCase() === term || 
+        p.name.toUpperCase().includes(term) ||
+        (term === "SHV" && p.code === "SHV11")
+      );
+      return match || { no: "-", code: term, name: term };
+    }
+
+    function computeNextBusinessDay(dateStr) {
+      let dt = new Date(dateStr);
+      if (isNaN(dt.getTime())) dt = new Date();
+      dt.setDate(dt.getDate() + 1);
+      if (dt.getDay() === 6) dt.setDate(dt.getDate() + 2);
+      else if (dt.getDay() === 0) dt.setDate(dt.getDate() + 1);
+
+      const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+      const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      return {
+        dateStr: `${dt.getDate()}-${months[dt.getMonth()]}-${dt.getFullYear().toString().slice(-2)}`,
+        weekday: weekdays[dt.getDay()]
+      };
+    }
+
+    function pushMonthlyRow(rec, exchangeRate) {
+      const port = resolvePortEntity(rec.portQuery);
+      const invDay = computeNextBusinessDay(rec.declareDate);
+
+      const isJR = rec.client.toUpperCase().includes("JR APPAREL");
+      const commission = isJR ? 0.00 : 50.00;
+
+      const invRevenue = parseFloat(rec.invRevenue) || 0;
+      const vat10 = invRevenue * 0.10;
+      const dis = parseFloat(rec.disbursementTotal) || 0;
+      const dn = parseFloat(rec.dnTotal) || 0;
+      const clearFee = parseFloat(rec.clearFee) || 0;
+      const thc = parseFloat(rec.thc) || 0;
+      const otherPay = parseFloat(rec.otherPay) || 0;
+
+      const totalInflow = invRevenue + dis + dn;
+      const totalOutflow = clearFee + thc + commission + otherPay;
+      const netProfit = totalInflow - totalOutflow;
+
+      const safeKey = rec.declareNo.replace(/[^a-zA-Z0-9]/g, '_');
+      const tbody = document.getElementById("accTableBody");
+
+      const existingRow = document.getElementById(`acc_row_${safeKey}`);
+      if (existingRow) existingRow.remove();
+
+      const row = document.createElement("tr");
+      row.id = `acc_row_${safeKey}`;
+      row.dataset.decl = rec.declareNo;
+
+      row.innerHTML = `
+        <td><span class="badge-status ${rec.cheaStatus === 'PAID' ? 'badge-paid' : 'badge-unpaid'}">${rec.cheaStatus || 'PAID'}</span></td>
+        <td>${port.no}</td>
+        <td>${port.code}</td>
+        <td>${port.name}</td>
+        <td>${rec.declareNo}</td>
+        <td>${rec.declareDate}</td>
+        <td>${rec.client}</td>
+        
+        <td><input type="text" class="table-inline-input" id="tbl_inv_${safeKey}" value="${rec.invNo || ''}" placeholder="INV No" onchange="syncManualToRegistry('${rec.declareNo}', 'invNo', this.value)" /></td>
+        <td><input type="text" class="table-inline-input" id="tbl_dis_${safeKey}" value="${rec.disNo || ''}" placeholder="DIS No" onchange="syncManualToRegistry('${rec.declareNo}', 'disNo', this.value)" /></td>
+        <td><input type="text" class="table-inline-input" id="tbl_dn_${safeKey}" value="${rec.dnNo || ''}" placeholder="DN No" onchange="syncManualToRegistry('${rec.declareNo}', 'dnNo', this.value)" /></td>
+        <td>
+          <button class="btn-table-update" onclick="updateSingleRowToRecordSummary('${rec.declareNo}')">Update ➔</button>
+        </td>
+
+        <td>${invDay.dateStr}</td>
+        <td>${exchangeRate}</td>
+        <td>${invDay.weekday}</td>
+        <td class="mono-num">${clearFee.toFixed(2)}</td>
+        <td class="mono-num val-highlight">${thc > 0 ? thc.toFixed(2) : '-'}</td>
+        <td class="mono-num">${otherPay > 0 ? otherPay.toFixed(2) : '-'}</td>
+        <td class="mono-num">${commission.toFixed(2)}</td>
+        <td class="mono-num">${invRevenue.toFixed(3)}</td>
+        <td class="mono-num" style="color:#60a5fa; font-weight:700;">${dis.toFixed(3)}</td>
+        <td class="mono-num">${vat10.toFixed(3)}</td>
+        <td class="mono-num">${dn.toFixed(3)}</td>
+        <td class="mono-num ${netProfit >= 0 ? 'val-positive' : 'val-negative'}">${netProfit.toFixed(2)}</td>
+        <td>${rec.mark || ''}</td>
+      `;
+      tbody.prepend(row);
+    }
+
+    function syncManualToRegistry(declNo, field, value) {
+      if (!OPERATIONS_REGISTRY[declNo]) OPERATIONS_REGISTRY[declNo] = { declareNo: declNo };
+      OPERATIONS_REGISTRY[declNo][field] = value.trim();
+    }
+
+    function updateSingleRowToRecordSummary(declNo) {
+      const safeKey = declNo.replace(/[^a-zA-Z0-9]/g, '_');
+      const invVal = document.getElementById(`tbl_inv_${safeKey}`).value.trim();
+      const disVal = document.getElementById(`tbl_dis_${safeKey}`).value.trim();
+      const dnVal = document.getElementById(`tbl_dn_${safeKey}`).value.trim();
+
+      if (!OPERATIONS_REGISTRY[declNo]) OPERATIONS_REGISTRY[declNo] = { declareNo: declNo };
+      OPERATIONS_REGISTRY[declNo].invNo = invVal;
+      OPERATIONS_REGISTRY[declNo].disNo = disVal;
+      OPERATIONS_REGISTRY[declNo].dnNo = dnVal;
+
+      document.getElementById("rs_in_declar").value = declNo;
+      document.getElementById("rs_in_inv").value = invVal;
+      document.getElementById("rs_in_dis").value = disVal;
+      document.getElementById("rs_in_dn").value = dnVal;
+      renderRsPreview();
+
+      document.getElementById("tax_in_no").value = invVal;
+      document.getElementById("dis_in_no").value = disVal;
+      document.getElementById("dn_in_no").value = dnVal;
+      renderTaxPreview();
+      renderDisPreview();
+      renderDnPreview();
+
+      alert(`✅ Updated Record Summary, Tax Invoice, and Debit Note for Declaration: ${declNo}`);
+    }
+
+    function updateAllMonthlyToRecordSummary() {
+      const rows = document.querySelectorAll('#accTableBody tr');
+      if (rows.length === 0) return alert("Monthly ledger is empty.");
+
+      rows.forEach(tr => {
+        const declNo = tr.dataset.decl;
+        if (declNo) {
+          const safeKey = declNo.replace(/[^a-zA-Z0-9]/g, '_');
+          const invInput = document.getElementById(`tbl_inv_${safeKey}`);
+          const disInput = document.getElementById(`tbl_dis_${safeKey}`);
+          const dnInput = document.getElementById(`tbl_dn_${safeKey}`);
+
+          if (invInput && disInput && dnInput) {
+            if (!OPERATIONS_REGISTRY[declNo]) OPERATIONS_REGISTRY[declNo] = { declareNo: declNo };
+            OPERATIONS_REGISTRY[declNo].invNo = invInput.value.trim();
+            OPERATIONS_REGISTRY[declNo].disNo = disInput.value.trim();
+            OPERATIONS_REGISTRY[declNo].dnNo = dnInput.value.trim();
+          }
+        }
+      });
+      alert("✅ All manual numbers synced across operational storage.");
+    }
+
+    function handlePullMonthly() {
+      const declTerm = document.getElementById("accInputDeclare").value.trim();
+      const exRate = document.getElementById("accExRate").value;
+      const record = OPERATIONS_REGISTRY[declTerm];
+
+      if (!record) return alert("Declaration Number not found in registry.");
+      pushMonthlyRow(record, exRate);
+    }
+
+    function clearMonthlyLedger() {
+      document.getElementById("accTableBody").innerHTML = "";
+    }
+
+    function updateAllExchangeRates(val) {
+      document.getElementById("tax_in_exRate").value = val;
+      document.getElementById("dis_in_exRate").value = val;
+      renderTaxPreview();
+      renderDisPreview();
+    }
+
+    /* --- RENDERING: TAX INVOICE --- */
+    function syncTaxFromOpsRegistry() {
+      const decl = document.getElementById("rs_in_declar").value;
+      const reg = OPERATIONS_REGISTRY[decl] || {};
+      
+      document.getElementById("tax_in_no").value = reg.invNo || document.getElementById("rs_in_inv").value || "GS26-212";
+      document.getElementById("tax_in_date").value = document.getElementById("rs_in_date").value;
+      document.getElementById("tax_in_ctnr").value = document.getElementById("rs_in_ctnr").value;
+      document.getElementById("tax_in_vol").value = document.getElementById("rs_in_ctnrSize").value;
+      document.getElementById("tax_in_gw").value = document.getElementById("rs_in_gw").value;
+      document.getElementById("tax_in_pol").value = document.getElementById("rs_in_port").value;
+      
+      if (reg.invRevenue) document.getElementById("tax_item_price").value = reg.invRevenue;
+
+      renderTaxPreview();
+      alert("✅ Tax Invoice data pulled successfully from Operations!");
+    }
+
+    function renderTaxPreview() {
+      const rate = parseFloat(document.getElementById("tax_in_exRate").value) || 4026;
+      const price = parseFloat(document.getElementById("tax_item_price").value) || 0;
+      const vat = price * 0.10;
+      const grand = price + vat;
+
+      document.getElementById("tax_out_no").innerText = document.getElementById("tax_in_no").value;
+      document.getElementById("tax_out_date").innerText = document.getElementById("tax_in_date").value;
+      document.getElementById("tax_out_rate").innerText = rate;
+      document.getElementById("tax_out_cust_km").innerText = document.getElementById("tax_in_cust_km").value;
+      document.getElementById("tax_out_cust_en").innerText = document.getElementById("tax_in_cust_en").value;
+      document.getElementById("tax_out_addr").innerText = document.getElementById("tax_in_addr").value;
+      document.getElementById("tax_out_vattin").innerText = document.getElementById("tax_in_vattin").value;
+      document.getElementById("tax_out_pol").innerText = document.getElementById("tax_in_pol").value;
+      document.getElementById("tax_out_pod").innerText = document.getElementById("tax_in_pod").value;
+      document.getElementById("tax_out_ctnr").innerText = document.getElementById("tax_in_ctnr").value;
+      document.getElementById("tax_out_vol").innerText = document.getElementById("tax_in_vol").value;
+      document.getElementById("tax_out_gw").innerText = document.getElementById("tax_in_gw").value;
+      document.getElementById("tax_out_shipper").innerText = document.getElementById("tax_in_shipper").value;
+      document.getElementById("tax_out_consignee").innerText = document.getElementById("tax_in_consignee").value;
+      document.getElementById("tax_out_hbl").innerText = document.getElementById("tax_in_hbl").value;
+      document.getElementById("tax_out_pkgs").innerText = document.getElementById("tax_in_pkgs").value;
+
+      document.getElementById("tax_out_item_desc").innerText = document.getElementById("tax_item_desc").value;
+      document.getElementById("tax_out_item_unit").innerText = document.getElementById("tax_item_unit").value;
+      document.getElementById("tax_out_item_price").innerText = formatNumber(price);
+      document.getElementById("tax_out_item_sub").innerText = formatNumber(price);
+      document.getElementById("tax_out_item_vat").innerText = formatNumber(vat);
+      document.getElementById("tax_out_item_amt").innerText = formatNumber(grand);
+
+      document.getElementById("tax_out_usd_sub").innerText = formatNumber(price);
+      document.getElementById("tax_out_usd_vat").innerText = formatNumber(vat);
+      document.getElementById("tax_out_usd_grand").innerText = formatNumber(grand);
+
+      document.getElementById("tax_out_khr_sub").innerText = formatKHR(price * rate);
+      document.getElementById("tax_out_khr_vat").innerText = formatKHR(vat * rate);
+      document.getElementById("tax_out_khr_grand").innerText = formatKHR(grand * rate);
+    }
+
+    /* --- RENDERING: DISBURSEMENT --- */
+    function syncDisFromTax() {
+      // Dis No & Dis Date are the ONLY fields that differ from the Tax Invoice.
+      // Keep whatever Dis No is already set (e.g. pulled from Operations Registry / DIS-No field);
+      // only fall back to a placeholder if it's empty.
+      if (!document.getElementById("dis_in_no").value.trim()) {
+        document.getElementById("dis_in_no").value = "DIS232";
+      }
+      // Dis Date defaults to match the Tax Invoice date unless the user has already set a different one.
+      document.getElementById("dis_in_date").value = document.getElementById("tax_in_date").value;
+
+      // Everything else must be identical to the Tax Invoice.
+      document.getElementById("dis_in_exRate").value = document.getElementById("tax_in_exRate").value;
+      document.getElementById("dis_in_cust_km").value = document.getElementById("tax_in_cust_km").value;
+      document.getElementById("dis_in_cust_en").value = document.getElementById("tax_in_cust_en").value;
+      document.getElementById("dis_in_addr").value = document.getElementById("tax_in_addr").value;
+      document.getElementById("dis_in_vattin").value = document.getElementById("tax_in_vattin").value;
+      document.getElementById("dis_in_pol").value = document.getElementById("tax_in_pol").value;
+      document.getElementById("dis_in_pod").value = document.getElementById("tax_in_pod").value;
+      document.getElementById("dis_in_ctnr").value = document.getElementById("tax_in_ctnr").value;
+      document.getElementById("dis_in_vol").value = document.getElementById("tax_in_vol").value;
+      document.getElementById("dis_in_gw").value = document.getElementById("tax_in_gw").value;
+      document.getElementById("dis_in_shipper").value = document.getElementById("tax_in_shipper").value;
+      document.getElementById("dis_in_consignee").value = document.getElementById("tax_in_consignee").value;
+      document.getElementById("dis_in_hbl").value = document.getElementById("tax_in_hbl").value;
+      document.getElementById("dis_in_pkgs").value = document.getElementById("tax_in_pkgs").value;
+
+      renderDisPreview();
+      alert("✅ Disbursement now matches the Tax Invoice exactly (only Dis No / Dis Date differ)!");
+    }
+
+    function renderDisPreview() {
+      const rate = parseFloat(document.getElementById("dis_in_exRate").value) || 4026;
+      const disPrice = parseFloat(document.getElementById("dis_item_price").value) || 0;
+
+      document.getElementById("dis_out_no").innerText = document.getElementById("dis_in_no").value;
+      document.getElementById("dis_out_date").innerText = document.getElementById("dis_in_date").value;
+      document.getElementById("dis_out_rate").innerText = rate;
+      document.getElementById("dis_out_cust_km").innerText = document.getElementById("dis_in_cust_km").value;
+      document.getElementById("dis_out_cust_en").innerText = document.getElementById("dis_in_cust_en").value;
+      document.getElementById("dis_out_addr").innerText = document.getElementById("dis_in_addr").value;
+      document.getElementById("dis_out_vattin").innerText = document.getElementById("dis_in_vattin").value;
+      document.getElementById("dis_out_pol").innerText = document.getElementById("dis_in_pol").value;
+      document.getElementById("dis_out_pod").innerText = document.getElementById("dis_in_pod").value;
+      document.getElementById("dis_out_ctnr").innerText = document.getElementById("dis_in_ctnr").value;
+      document.getElementById("dis_out_vol").innerText = document.getElementById("dis_in_vol").value;
+      document.getElementById("dis_out_gw").innerText = document.getElementById("dis_in_gw").value;
+      document.getElementById("dis_out_shipper").innerText = document.getElementById("dis_in_shipper").value;
+      document.getElementById("dis_out_consignee").innerText = document.getElementById("dis_in_consignee").value;
+      document.getElementById("dis_out_hbl").innerText = document.getElementById("dis_in_hbl").value;
+      document.getElementById("dis_out_pkgs").innerText = document.getElementById("dis_in_pkgs").value;
+
+      document.getElementById("dis_out_item_desc").innerText = document.getElementById("dis_item_desc").value;
+      document.getElementById("dis_out_item_unit").innerText = document.getElementById("dis_item_unit").value;
+      document.getElementById("dis_out_item_price").innerText = formatNumber(disPrice);
+      document.getElementById("dis_out_item_sub").innerText = formatNumber(disPrice);
+      document.getElementById("dis_out_item_vat").innerText = "-";
+      document.getElementById("dis_out_item_amt").innerText = formatNumber(disPrice);
+
+      document.getElementById("dis_out_usd_sub").innerText = formatNumber(disPrice);
+      document.getElementById("dis_out_usd_vat").innerText = "-";
+      document.getElementById("dis_out_usd_grand").innerText = formatNumber(disPrice);
+    }
+
+    /* --- RENDERING: DEBIT NOTE --- */
+    function syncDnFromRecordSummary() {
+      document.getElementById("dn_in_no").value = document.getElementById("rs_in_dn").value || "JR2606001";
+      document.getElementById("dn_in_date").value = document.getElementById("rs_in_date").value;
+      document.getElementById("dn_in_ctnr").value = document.getElementById("rs_in_ctnr").value;
+      document.getElementById("dn_in_vol").value = document.getElementById("rs_in_ctnrSize").value;
+      document.getElementById("dn_in_gw").value = document.getElementById("rs_in_gw").value;
+      document.getElementById("dn_in_pol").value = document.getElementById("rs_in_port").value;
+      
+      stateDebitNote = stateRecordSummary
+        .filter(i => !i.desc.toUpperCase().includes('PROCESSING') && !i.desc.toUpperCase().includes('THC') && (parseFloat(i.price) > 0))
+        .map(i => ({ desc: i.desc, qty: i.qty || 1, unit: i.unit || '40H', price: parseFloat(i.price) || 0 }));
+
+      if (stateDebitNote.length === 0) {
+        stateDebitNote = JSON.parse(JSON.stringify(TEMPLATE_DEBIT_NOTE));
+      }
+
+      renderDnEditor();
+      renderDnPreview();
+      alert("✅ Debit Note pulled from Record Summary breakdown items!");
+    }
+
+    function renderDnEditor() {
+      const container = document.getElementById('list-dn-inputs');
+      container.innerHTML = `
+        <div style="display:flex; gap:6px; padding:0 8px 4px 8px; font-size:10px; font-weight:700; color:#6b7280; text-transform:uppercase;">
+          <div style="width:20px;">#</div>
+          <div style="flex:2;">Description</div>
+          <div style="width:40px;">Qty</div>
+          <div style="width:55px;">Unit</div>
+          <div style="width:65px;">Price</div>
+          <div style="width:28px;"></div>
+        </div>
+      `;
+
+      stateDebitNote.forEach((row, idx) => {
+        const item = document.createElement('div');
+        item.className = 'row-item';
+        item.innerHTML = `
+          <div style="width:20px; font-size:11px; color:#6b7280; text-align:center;">${idx + 1}</div>
+          <input type="text" class="form-input" style="flex:2; padding:5px;" value="${row.desc}" oninput="editDnLine(${idx}, 'desc', this.value)" />
+          <input type="number" class="form-input" style="width:40px; padding:5px;" value="${row.qty}" oninput="editDnLine(${idx}, 'qty', this.value)" />
+          <input type="text" class="form-input" style="width:55px; padding:5px;" value="${row.unit}" oninput="editDnLine(${idx}, 'unit', this.value)" />
+          <input type="number" step="0.01" class="form-input" style="width:65px; padding:5px;" value="${row.price}" oninput="editDnLine(${idx}, 'price', this.value)" />
+          <button class="btn-row-del" onclick="deleteDnLine(${idx})">✕</button>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    function addDnItem() {
+      stateDebitNote.push({ desc: "EXTRA FEE", qty: 1, unit: "40H", price: 0.00 });
+      renderDnEditor();
+      renderDnPreview();
+    }
+
+    function deleteDnLine(idx) {
+      stateDebitNote.splice(idx, 1);
+      renderDnEditor();
+      renderDnPreview();
+    }
+
+    function editDnLine(idx, field, val) {
+      stateDebitNote[idx][field] = (field === 'qty' || field === 'price') ? (parseFloat(val) || 0) : val;
+      renderDnPreview();
+    }
+
+    function renderDnPreview() {
+      document.getElementById('dn_out_no').innerText = document.getElementById('dn_in_no').value;
+      document.getElementById('dn_out_date').innerText = document.getElementById('dn_in_date').value;
+      document.getElementById('dn_out_cust').innerText = document.getElementById('dn_in_cust').value;
+      document.getElementById('dn_out_addr').innerText = document.getElementById('dn_in_addr').value;
+      document.getElementById('dn_out_hbl').innerText = document.getElementById('dn_in_hbl').value;
+      document.getElementById('dn_out_gw').innerText = document.getElementById('dn_in_gw').value;
+      document.getElementById('dn_out_vol').innerText = document.getElementById('dn_in_vol').value;
+      document.getElementById('dn_out_ctnr').innerText = document.getElementById('dn_in_ctnr').value;
+      document.getElementById('dn_out_pol').innerText = document.getElementById('dn_in_pol').value;
+      document.getElementById('dn_out_pod').innerText = document.getElementById('dn_in_pod').value;
+
+      const tbody = document.getElementById('tbody-dn-preview');
+      tbody.innerHTML = '';
+      let sum = 0;
+
+      stateDebitNote.forEach((r, i) => {
+        const sub = (parseFloat(r.qty) || 0) * (parseFloat(r.price) || 0);
+        sum += sub;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td style="text-align:center;">${i + 1}</td>
+          <td>${r.desc}</td>
+          <td style="text-align:center;">${r.qty}</td>
+          <td style="text-align:center;">${r.unit}</td>
+          <td style="text-align:right;">${formatNumber(r.price)}</td>
+          <td style="text-align:right;">${formatNumber(sub)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+      document.getElementById('dn_out_total').innerText = formatNumber(sum);
+    }
+
+    /* --- COMMON PREVIEW RENDERERS --- */
+    function renderCnEditor() {
+      const container = document.getElementById('list-cn-inputs');
+      container.innerHTML = '';
+      stateCreditNote.forEach((row, idx) => {
+        const item = document.createElement('div');
+        item.className = 'row-item';
+        item.innerHTML = `
+          <div style="width:20px; font-size:11px; color:#6b7280; text-align:center;">${idx + 1}</div>
+          <input type="text" class="form-input" style="flex:2; padding:5px;" value="${row.desc}" oninput="stateCreditNote[${idx}].desc=this.value; renderCnPreview();" />
+          <input type="number" class="form-input" style="width:40px; padding:5px;" value="${row.qty}" oninput="stateCreditNote[${idx}].qty=parseFloat(this.value)||0; renderCnPreview();" />
+          <input type="text" class="form-input" style="width:55px; padding:5px;" value="${row.unit}" oninput="stateCreditNote[${idx}].unit=this.value; renderCnPreview();" />
+          <input type="number" step="0.01" class="form-input" style="width:60px; padding:5px;" value="${row.price}" oninput="stateCreditNote[${idx}].price=parseFloat(this.value)||0; renderCnPreview();" />
+          <button class="btn-row-del" onclick="stateCreditNote.splice(${idx},1); renderCnEditor(); renderCnPreview();">✕</button>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    function addCnItem() {
+      stateCreditNote.push({ desc: "NEW ITEM", qty: 1, unit: "SET", price: 0.00, mark: "" });
+      renderCnEditor();
+      renderCnPreview();
+    }
+
+    function renderCnPreview() {
+      document.getElementById('cn_out_billTo').innerText = document.getElementById('cn_in_billTo').value;
+      document.getElementById('cn_out_address').innerText = document.getElementById('cn_in_address').value;
+      document.getElementById('cn_out_shipper').innerText = document.getElementById('cn_in_shipper').value;
+      document.getElementById('cn_out_port').innerText = document.getElementById('cn_in_port').value;
+      document.getElementById('cn_out_cnt').innerText = document.getElementById('cn_in_cnt').value;
+      document.getElementById('cn_out_declar').innerText = document.getElementById('cn_in_declar').value;
+      document.getElementById('cn_out_refLabel').innerText = document.getElementById('cn_in_refType').value + ":";
+      document.getElementById('cn_out_hawb').innerText = document.getElementById('cn_in_hawb').value;
+      document.getElementById('cn_out_date').innerText = document.getElementById('cn_in_date').value || "21-Aug-2026";
+      document.getElementById('cn_out_qty').innerText = document.getElementById('cn_in_qty').value;
+      document.getElementById('cn_out_gw').innerText = document.getElementById('cn_in_gw').value;
+      document.getElementById('cn_out_cbm').innerText = document.getElementById('cn_in_cbm').value;
+
+      const tbody = document.getElementById('tbody-cn-preview');
+      tbody.innerHTML = '';
+      let sum = 0;
+      stateCreditNote.forEach((r, i) => {
+        const sub = (parseFloat(r.qty) || 0) * (parseFloat(r.price) || 0);
+        sum += sub;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td style="text-align:center;">${i + 1}</td>
+          <td>${r.desc}</td>
+          <td style="text-align:center;">${r.qty || '-'}</td>
+          <td style="text-align:center;">${r.unit || '-'}</td>
+          <td style="text-align:right;">${r.price > 0 ? formatNumber(r.price) : '-'}</td>
+          <td style="text-align:right;">${sub > 0 ? formatNumber(sub) : '-'}</td>
+          <td style="text-align:center;">${r.mark || ''}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+      document.getElementById('cn_out_total').innerText = formatNumber(sum);
+    }
+
+    function renderRsEditor() {
+      const container = document.getElementById('list-rs-inputs');
+      container.innerHTML = '';
+      stateRecordSummary.forEach((row, idx) => {
+        const item = document.createElement('div');
+        item.className = 'row-item';
+        item.innerHTML = `
+          <div style="width:20px; font-size:11px; color:#6b7280; text-align:center;">${idx + 1}</div>
+          <input type="text" class="form-input" style="flex:2; padding:5px;" value="${row.desc}" oninput="stateRecordSummary[${idx}].desc=this.value; renderRsPreview();" />
+          <input type="number" class="form-input" style="width:40px; padding:5px;" value="${row.qty !== null ? row.qty : ''}" oninput="stateRecordSummary[${idx}].qty=this.value===''?null:parseFloat(this.value); renderRsPreview();" />
+          <input type="text" class="form-input" style="width:55px; padding:5px;" value="${row.unit || ''}" oninput="stateRecordSummary[${idx}].unit=this.value; renderRsPreview();" />
+          <input type="number" step="0.01" class="form-input" style="width:60px; padding:5px;" value="${row.price || ''}" oninput="stateRecordSummary[${idx}].price=parseFloat(this.value)||0; renderRsPreview();" />
+          <button class="btn-row-del" onclick="stateRecordSummary.splice(${idx}, 1); renderRsEditor(); renderRsPreview();">✕</button>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    function addRsItem() {
+      stateRecordSummary.push({ desc: "ADDITIONAL ITEM", qty: 1, unit: "SET", price: 0.00 });
+      renderRsEditor();
+      renderRsPreview();
+    }
+
+    function renderRsPreview() {
+      document.getElementById('rs_out_mode_lbl').innerText = document.getElementById('rs_in_mode').value;
+      document.getElementById('rs_out_trans_lbl').innerText = `☑ ${document.getElementById('rs_in_transport').value}`;
+      document.getElementById('rs_out_inv').innerText = document.getElementById('rs_in_inv').value;
+      document.getElementById('rs_out_dis').innerText = document.getElementById('rs_in_dis').value;
+      document.getElementById('rs_out_dn').innerText = document.getElementById('rs_in_dn').value;
+      document.getElementById('rs_out_factory').innerText = document.getElementById('rs_in_factory').value;
+      document.getElementById('rs_out_port').innerText = document.getElementById('rs_in_port').value;
+      document.getElementById('rs_out_qty').innerText = document.getElementById('rs_in_qty').value;
+      document.getElementById('rs_out_ctnr').innerText = `${document.getElementById('rs_in_ctnr').value} (${document.getElementById('rs_in_ctnrSize').value})`;
+      document.getElementById('rs_out_bl').innerText = document.getElementById('rs_in_bl').value;
+      document.getElementById('rs_out_gw').innerText = document.getElementById('rs_in_gw').value;
+      document.getElementById('rs_out_declar').innerText = document.getElementById('rs_in_declar').value;
+      document.getElementById('rs_out_cbm').innerText = document.getElementById('rs_in_cbm').value;
+      document.getElementById('rs_out_date').innerText = document.getElementById('rs_in_date').value;
+      document.getElementById('rs_out_fwd').innerText = document.getElementById('rs_in_fwd').value;
+
+      const tbody = document.getElementById('tbody-rs-preview');
+      tbody.innerHTML = '';
+      let totalSum = 0;
+
+      stateRecordSummary.forEach((r, idx) => {
+        const qtyVal = r.qty !== null ? parseFloat(r.qty) : 1;
+        const priceVal = parseFloat(r.price) || 0;
+        const sub = (r.subtotal !== null && r.subtotal !== undefined) ? parseFloat(r.subtotal) : (priceVal * qtyVal);
+        if (sub > 0) totalSum += sub;
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td style="text-align:center;">${idx + 1}</td>
+          <td>${r.desc}</td>
+          <td style="text-align:center;">${r.qty !== null ? r.qty : ''}</td>
+          <td style="text-align:center;">${r.unit || ''}</td>
+          <td style="text-align:right;">${priceVal > 0 ? formatNumber(priceVal) : '-'}</td>
+          <td style="text-align:right;">${sub > 0 ? formatNumber(sub) : '-'}</td>
+          <td style="text-align:center;">${r.mark || ''}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+      document.getElementById('rs_out_total').innerText = formatNumber(totalSum);
+    }
+
+    function handleRsModeSwitch() {
+      renderRsEditor();
+      renderRsPreview();
+    }
+
+    function handleShipperSelect(id) {}
+    function handlePortSelect(id) {}
+
+    function downloadVectorPDF(titlePrefix, sheetId) {
+      const target = document.getElementById(sheetId);
+      const frame = document.createElement('iframe');
+      frame.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:210mm;height:297mm;border:none;';
+      document.body.appendChild(frame);
+
+      const doc = frame.contentWindow.document;
+      doc.head.innerHTML = `
+        <meta charset="UTF-8">
+        <style>
+          * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+          html, body { margin: 0; padding: 0; background: white; }
+          .paper-sheet, #paper-tax, #paper-dis { width: 210mm; padding: 10mm 12mm !important; box-shadow: none; }
+          @page { size: A4 portrait; margin: 0; }
+        </style>
+      `;
+
+      document.querySelectorAll('style, link[rel="stylesheet"]').forEach(node => {
+        doc.head.appendChild(node.cloneNode(true));
+      });
+
+      doc.body.innerHTML = `<div class="paper-sheet" id="${sheetId}">${target.innerHTML}</div>`;
+
+      setTimeout(() => {
+        frame.contentWindow.focus();
+        frame.contentWindow.print();
+        document.body.removeChild(frame);
+      }, 300);
+    }
+
+    async function exportAccToExcel() {}
+    async function exportCnExcel() {}
+    async function exportRsExcel() {}
+    async function exportTaxExcel() {}
+    async function exportDisExcel() {}
+    async function exportDnExcel() {}
+
+    /* --- BOOTSTRAP INITIALIZATION --- */
+    renderCnEditor();
+    renderCnPreview();
+    renderRsEditor();
+    renderRsPreview();
+    renderTaxPreview();
+    renderDisPreview();
+    renderDnEditor();
+    renderDnPreview();
+
+    pushMonthlyRow(OPERATIONS_REGISTRY["I 122050"], 4026);
+    pushMonthlyRow(OPERATIONS_REGISTRY["I 95925"], 4026);
+  </script>
+</body>
+</html>
